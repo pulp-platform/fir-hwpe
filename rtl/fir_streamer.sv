@@ -1,5 +1,5 @@
 /*
- * mac_streamer.sv
+ * fir_streamer.sv
  * Francesco Conti <fconti@iis.ee.ethz.ch>
  *
  * Copyright (C) 2018 ETH Zurich, University of Bologna
@@ -13,10 +13,10 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import mac_package::*;
+import fir_package::*;
 import hwpe_stream_package::*;
 
-module mac_streamer
+module fir_streamer
 #(
   parameter int unsigned MP = 4, // number of master ports
   parameter int unsigned FD = 2  // FIFO depth
@@ -247,4 +247,4 @@ module mac_streamer
     .flags_o (                   )
   );
 
-endmodule // mac_streamer
+endmodule // fir_streamer

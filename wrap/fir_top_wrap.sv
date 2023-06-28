@@ -1,15 +1,15 @@
 /*
- * mac_top_wrap.sv
+ * fir_top_wrap.sv
  * Francesco Conti <fconti@iis.ee.ethz.ch>
  *
  * Copyright (C) 2017 ETH Zurich, University of Bologna
  * All rights reserved.
  */
 
-import mac_package::*;
+import fir_package::*;
 import hwpe_ctrl_package::*;
 
-module mac_top_wrap
+module fir_top_wrap
 #(
   parameter N_CORES = 2,
   parameter MP  = 4,
@@ -81,11 +81,11 @@ module mac_top_wrap
     periph_r_id    = periph.r_id;
   end
 
-  mac_top #(
+  fir_top #(
     .N_CORES ( N_CORES ),
     .MP      ( MP      ),
     .ID      ( ID      )
-  ) i_mac_top (
+  ) i_fir_top (
     .clk_i       ( clk_i       ),
     .rst_ni      ( rst_ni      ),
     .test_mode_i ( test_mode_i ),
@@ -94,4 +94,4 @@ module mac_top_wrap
     .periph      ( periph      )
   );
 
-endmodule // mac_top_wrap
+endmodule // fir_top_wrap

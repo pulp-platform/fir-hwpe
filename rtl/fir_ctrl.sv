@@ -1,5 +1,5 @@
 /* 
- * mac_ctrl.sv
+ * fir_ctrl.sv
  * Francesco Conti <fconti@iis.ee.ethz.ch>
  *
  * Copyright (C) 2018 ETH Zurich, University of Bologna
@@ -13,10 +13,10 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import mac_package::*;
+import fir_package::*;
 import hwpe_ctrl_package::*;
 
-module mac_ctrl
+module fir_ctrl
 #(
   parameter int unsigned N_CORES         = 2,
   parameter int unsigned N_CONTEXT       = 2,
@@ -79,11 +79,11 @@ module mac_ctrl
   assign evt_o = slave_flags.evt;
 
   /* Direct register file mappings */
-  assign static_reg_nb_iter    = reg_file.hwpe_params[MAC_REG_NB_ITER]  + 1;
-  assign static_reg_len_iter   = reg_file.hwpe_params[MAC_REG_LEN_ITER] + 1;
-  assign static_reg_shift      = reg_file.hwpe_params[MAC_REG_SHIFT_SIMPLEMUL][31:16];
-  assign static_reg_simplemul  = reg_file.hwpe_params[MAC_REG_SHIFT_SIMPLEMUL][0];
-  assign static_reg_vectstride = reg_file.hwpe_params[MAC_REG_SHIFT_VECTSTRIDE];
+  assign static_reg_nb_iter    = reg_file.hwpe_params[FIR_REG_NB_ITER]  + 1;
+  assign static_reg_len_iter   = reg_file.hwpe_params[FIR_REG_LEN_ITER] + 1;
+  assign static_reg_shift      = reg_file.hwpe_params[FIR_REG_SHIFT_SIMPLEMUL][31:16];
+  assign static_reg_simplemul  = reg_file.hwpe_params[FIR_REG_SHIFT_SIMPLEMUL][0];
+  assign static_reg_vectstride = reg_file.hwpe_params[FIR_REG_SHIFT_VECTSTRIDE];
   assign static_reg_onestride  = 4;
 
   /* Microcode processor */
@@ -107,9 +107,9 @@ module mac_ctrl
     uloop_code.range[0] = static_reg_nb_iter[11:0];
   end
 
-  assign uloop_registers_read[MAC_UCODE_MNEM_NBITER]     = static_reg_nb_iter;
-  assign uloop_registers_read[MAC_UCODE_MNEM_ITERSTRIDE] = static_reg_vectstride;
-  assign uloop_registers_read[MAC_UCODE_MNEM_ONESTRIDE]  = static_reg_onestride;
+  assign uloop_registers_read[FIR_UCODE_MNEM_NBITER]     = static_reg_nb_iter;
+  assign uloop_registers_read[FIR_UCODE_MNEM_ITERSTRIDE] = static_reg_vectstride;
+  assign uloop_registers_read[FIR_UCODE_MNEM_ONESTRIDE]  = static_reg_onestride;
   assign uloop_registers_read[11:3] = '0;
   hwpe_ctrl_uloop #(
     .NB_LOOPS  ( 1  ),
@@ -127,7 +127,7 @@ module mac_ctrl
   );
 
   /* Main FSM */
-  mac_fsm i_fsm (
+  fir_fsm i_fsm (
     .clk_i            ( clk_i              ),
     .rst_ni           ( rst_ni             ),
     .test_mode_i      ( test_mode_i        ),
@@ -147,7 +147,7 @@ module mac_ctrl
   begin
     fsm_ctrl.simple_mul = static_reg_simplemul;
     fsm_ctrl.shift      = static_reg_shift[$clog2(32)-1:0];
-    fsm_ctrl.len        = static_reg_len_iter[$clog2(MAC_CNT_LEN):0];
+    fsm_ctrl.len        = static_reg_len_iter[$clog2(FIR_CNT_LEN):0];
   end
 
-endmodule // mac_ctrl
+endmodule // fir_ctrl

@@ -1,5 +1,5 @@
 /* 
- * mac_fsm.sv
+ * fir_fsm.sv
  * Francesco Conti <fconti@iis.ee.ethz.ch>
  *
  * Copyright (C) 2018 ETH Zurich, University of Bologna
@@ -13,10 +13,10 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import mac_package::*;
+import fir_package::*;
 import hwpe_ctrl_package::*;
 
-module mac_fsm (
+module fir_fsm (
   // global signals
   input  logic                clk_i,
   input  logic                rst_ni,
@@ -61,7 +61,7 @@ module mac_fsm (
     ctrl_streamer_o.a_source_ctrl.addressgen_ctrl.line_length = ctrl_i.len;
     ctrl_streamer_o.a_source_ctrl.addressgen_ctrl.feat_stride = '0;
     ctrl_streamer_o.a_source_ctrl.addressgen_ctrl.feat_length = 1;
-    ctrl_streamer_o.a_source_ctrl.addressgen_ctrl.base_addr   = reg_file_i.hwpe_params[MAC_REG_A_ADDR] + (flags_uloop_i.offs[MAC_UCODE_A_OFFS]);
+    ctrl_streamer_o.a_source_ctrl.addressgen_ctrl.base_addr   = reg_file_i.hwpe_params[FIR_REG_A_ADDR] + (flags_uloop_i.offs[FIR_UCODE_A_OFFS]);
     ctrl_streamer_o.a_source_ctrl.addressgen_ctrl.feat_roll   = '0;
     ctrl_streamer_o.a_source_ctrl.addressgen_ctrl.loop_outer  = '0;
     ctrl_streamer_o.a_source_ctrl.addressgen_ctrl.realign_type = '0;
@@ -71,7 +71,7 @@ module mac_fsm (
     ctrl_streamer_o.b_source_ctrl.addressgen_ctrl.line_length = ctrl_i.len;
     ctrl_streamer_o.b_source_ctrl.addressgen_ctrl.feat_stride = '0;
     ctrl_streamer_o.b_source_ctrl.addressgen_ctrl.feat_length = 1;
-    ctrl_streamer_o.b_source_ctrl.addressgen_ctrl.base_addr   = reg_file_i.hwpe_params[MAC_REG_B_ADDR] + (flags_uloop_i.offs[MAC_UCODE_B_OFFS]);
+    ctrl_streamer_o.b_source_ctrl.addressgen_ctrl.base_addr   = reg_file_i.hwpe_params[FIR_REG_B_ADDR] + (flags_uloop_i.offs[FIR_UCODE_B_OFFS]);
     ctrl_streamer_o.b_source_ctrl.addressgen_ctrl.feat_roll   = '0;
     ctrl_streamer_o.b_source_ctrl.addressgen_ctrl.loop_outer  = '0;
     ctrl_streamer_o.b_source_ctrl.addressgen_ctrl.realign_type = '0;
@@ -81,7 +81,7 @@ module mac_fsm (
     ctrl_streamer_o.c_source_ctrl.addressgen_ctrl.line_length = 1;
     ctrl_streamer_o.c_source_ctrl.addressgen_ctrl.feat_stride = '0;
     ctrl_streamer_o.c_source_ctrl.addressgen_ctrl.feat_length = 1;
-    ctrl_streamer_o.c_source_ctrl.addressgen_ctrl.base_addr   = reg_file_i.hwpe_params[MAC_REG_C_ADDR] + (flags_uloop_i.offs[MAC_UCODE_C_OFFS]);
+    ctrl_streamer_o.c_source_ctrl.addressgen_ctrl.base_addr   = reg_file_i.hwpe_params[FIR_REG_C_ADDR] + (flags_uloop_i.offs[FIR_UCODE_C_OFFS]);
     ctrl_streamer_o.c_source_ctrl.addressgen_ctrl.feat_roll   = '0;
     ctrl_streamer_o.c_source_ctrl.addressgen_ctrl.loop_outer  = '0;
     ctrl_streamer_o.c_source_ctrl.addressgen_ctrl.realign_type = '0;
@@ -91,7 +91,7 @@ module mac_fsm (
     ctrl_streamer_o.d_sink_ctrl.addressgen_ctrl.line_length = (ctrl_i.simple_mul) ? ctrl_i.len : 1;
     ctrl_streamer_o.d_sink_ctrl.addressgen_ctrl.feat_stride = '0;
     ctrl_streamer_o.d_sink_ctrl.addressgen_ctrl.feat_length = 1;
-    ctrl_streamer_o.d_sink_ctrl.addressgen_ctrl.base_addr   = reg_file_i.hwpe_params[MAC_REG_D_ADDR] + (flags_uloop_i.offs[MAC_UCODE_D_OFFS]);
+    ctrl_streamer_o.d_sink_ctrl.addressgen_ctrl.base_addr   = reg_file_i.hwpe_params[FIR_REG_D_ADDR] + (flags_uloop_i.offs[FIR_UCODE_D_OFFS]);
     ctrl_streamer_o.d_sink_ctrl.addressgen_ctrl.feat_roll   = '0;
     ctrl_streamer_o.d_sink_ctrl.addressgen_ctrl.loop_outer  = '0;
     ctrl_streamer_o.d_sink_ctrl.addressgen_ctrl.realign_type = '0;
@@ -212,4 +212,4 @@ module mac_fsm (
     endcase // curr_state
   end
 
-endmodule // mac_fsm
+endmodule // fir_fsm

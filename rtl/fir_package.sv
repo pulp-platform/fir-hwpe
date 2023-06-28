@@ -1,5 +1,5 @@
 /*
- * mac_package.sv
+ * fir_package.sv
  * Francesco Conti <fconti@iis.ee.ethz.ch>
  *
  * Copyright (C) 2018 ETH Zurich, University of Bologna
@@ -15,30 +15,30 @@
 
 import hwpe_stream_package::*;
 
-package mac_package;
+package fir_package;
 
-  parameter int unsigned MAC_CNT_LEN = 1024; // maximum length of the vectors for a scalar product
+  parameter int unsigned FIR_CNT_LEN = 1024; // maximum length of the vectors for a scalar product
 
   // registers in register file
-  parameter int unsigned MAC_REG_A_ADDR           = 0;
-  parameter int unsigned MAC_REG_B_ADDR           = 1;
-  parameter int unsigned MAC_REG_C_ADDR           = 2;
-  parameter int unsigned MAC_REG_D_ADDR           = 3;
-  parameter int unsigned MAC_REG_NB_ITER          = 4;
-  parameter int unsigned MAC_REG_LEN_ITER         = 5;
-  parameter int unsigned MAC_REG_SHIFT_SIMPLEMUL  = 6;
-  parameter int unsigned MAC_REG_SHIFT_VECTSTRIDE = 7;
+  parameter int unsigned FIR_REG_A_ADDR           = 0;
+  parameter int unsigned FIR_REG_B_ADDR           = 1;
+  parameter int unsigned FIR_REG_C_ADDR           = 2;
+  parameter int unsigned FIR_REG_D_ADDR           = 3;
+  parameter int unsigned FIR_REG_NB_ITER          = 4;
+  parameter int unsigned FIR_REG_LEN_ITER         = 5;
+  parameter int unsigned FIR_REG_SHIFT_SIMPLEMUL  = 6;
+  parameter int unsigned FIR_REG_SHIFT_VECTSTRIDE = 7;
 
   // microcode offset indeces -- this should be aligned to the microcode compiler of course!
-  parameter int unsigned MAC_UCODE_A_OFFS = 0;
-  parameter int unsigned MAC_UCODE_B_OFFS = 1;
-  parameter int unsigned MAC_UCODE_C_OFFS = 2;
-  parameter int unsigned MAC_UCODE_D_OFFS = 3;
+  parameter int unsigned FIR_UCODE_A_OFFS = 0;
+  parameter int unsigned FIR_UCODE_B_OFFS = 1;
+  parameter int unsigned FIR_UCODE_C_OFFS = 2;
+  parameter int unsigned FIR_UCODE_D_OFFS = 3;
 
   // microcode mnemonics -- this should be aligned to the microcode compiler of course!
-  parameter int unsigned MAC_UCODE_MNEM_NBITER     = 4 - 4;
-  parameter int unsigned MAC_UCODE_MNEM_ITERSTRIDE = 5 - 4;
-  parameter int unsigned MAC_UCODE_MNEM_ONESTRIDE  = 6 - 4;
+  parameter int unsigned FIR_UCODE_MNEM_NBITER     = 4 - 4;
+  parameter int unsigned FIR_UCODE_MNEM_ITERSTRIDE = 5 - 4;
+  parameter int unsigned FIR_UCODE_MNEM_ONESTRIDE  = 6 - 4;
 
   typedef struct packed {
     logic clear;
@@ -46,11 +46,11 @@ package mac_package;
     logic simple_mul;
     logic start;
     logic unsigned [$clog2(32)-1       :0] shift;
-    logic unsigned [$clog2(MAC_CNT_LEN):0] len; // 1 bit more as cnt starts from 1, not 0
+    logic unsigned [$clog2(FIR_CNT_LEN):0] len; // 1 bit more as cnt starts from 1, not 0
   } ctrl_engine_t; 
 
   typedef struct packed {
-    logic unsigned [$clog2(MAC_CNT_LEN):0] cnt; // 1 bit more as cnt starts from 1, not 0
+    logic unsigned [$clog2(FIR_CNT_LEN):0] cnt; // 1 bit more as cnt starts from 1, not 0
     logic acc_valid;
   } flags_engine_t;
 
@@ -71,7 +71,7 @@ package mac_package;
   typedef struct packed {
     logic simple_mul;
     logic unsigned [$clog2(32)-1       :0] shift;
-    logic unsigned [$clog2(MAC_CNT_LEN):0] len; // 1 bit more as cnt starts from 1, not 0
+    logic unsigned [$clog2(FIR_CNT_LEN):0] len; // 1 bit more as cnt starts from 1, not 0
   } ctrl_fsm_t;
 
   typedef enum {
@@ -83,4 +83,4 @@ package mac_package;
     FSM_TERMINATE
   } state_fsm_t;
 
-endpackage // mac_package
+endpackage // fir_package

@@ -1,5 +1,5 @@
 /* 
- * mac_top.sv
+ * fir_top.sv
  * Francesco Conti <fconti@iis.ee.ethz.ch>
  *
  * Copyright (C) 2018 ETH Zurich, University of Bologna
@@ -13,10 +13,10 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import mac_package::*;
+import fir_package::*;
 import hwpe_ctrl_package::*;
 
-module mac_top
+module fir_top
 #(
   parameter int unsigned N_CORES = 2,
   parameter int unsigned MP  = 4,
@@ -62,7 +62,7 @@ module mac_top
     .clk ( clk_i )
   );
 
-  mac_engine i_engine (
+  fir_engine i_engine (
     .clk_i            ( clk_i          ),
     .rst_ni           ( rst_ni         ),
     .test_mode_i      ( test_mode_i    ),
@@ -74,7 +74,7 @@ module mac_top
     .flags_o          ( engine_flags   )
   );
 
-  mac_streamer #(
+  fir_streamer #(
     .MP ( MP )
   ) i_streamer (
     .clk_i            ( clk_i          ),
@@ -91,7 +91,7 @@ module mac_top
     .flags_o          ( streamer_flags )
   );
 
-  mac_ctrl #(
+  fir_ctrl #(
     .N_CORES   ( 2  ),
     .N_CONTEXT ( 2  ),
     .N_IO_REGS ( 16 ),
@@ -111,4 +111,4 @@ module mac_top
 
   assign enable = 1'b1;
 
-endmodule // mac_top
+endmodule // fir_top
