@@ -4,9 +4,8 @@ package:
     - "Francesco Conti <f.conti@unibo.it>"
 
 dependencies:
-  hwpe-stream: { git: "https://github.com/pulp-platform/hwpe-stream.git", version: 1.6.3 }
-  hwpe-ctrl:   { git: "https://github.com/pulp-platform/hwpe-ctrl.git", version: 1.6.1 }
-
+  hwpe-stream: { path: "deps/hwpe-stream" }
+  hwpe-ctrl:   { path: "deps/hwpe-ctrl" }
 
 sources:
   - include_dirs:
@@ -27,3 +26,6 @@ sources:
       - rtl/fir_top.sv
       # Level 4
       - wrap/fir_top_wrap.sv
+      - target: test
+        files:
+          - rtl/verif/tb_fir_datapath.sv

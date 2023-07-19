@@ -1,0 +1,6 @@
+[submodule "deps/hwpe-stream"]
+	path = deps/hwpe-stream
+	url = https://github.com/pulp-platform/hwpe-stream
+[submodule "deps/hwpe-ctrl"]
+	path = deps/hwpe-ctrl
+	url = https://github.com/pulp-platform/hwpe-ctrl
