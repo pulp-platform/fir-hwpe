@@ -28,11 +28,14 @@ module tb_fir_datapath;
   parameter STIM_FILE_H = "h_stim.txt";
   parameter STIM_FILE_Y = "y_gold.txt";
   parameter DATA_WIDTH = 16;
+  parameter NB_TAPS = 50;
 
   // ATI timing parameters.
   localparam TCP = 1.0ns; // clock period, 1 GHz clock
   localparam TA  = 0.2ns; // application time
   localparam TT  = 0.8ns; // test time
+
+  localparam DATA_WIDTH_H = DATA_WIDTH*NB_TAPS;
 
   // global signals
   logic clk_i  = '0;
@@ -96,7 +99,7 @@ module tb_fir_datapath;
     .RESERVOIR_SIZE ( RESERVOIR_SIZE_X ),
     .RANDOM_STROBE  ( 1'b0             ),
     .PROB_STALL     ( PROB_STALL_GEN   )
-  ) i_traffic_gen (
+  ) i_traffic_gen_x (
     .clk_i          ( clk_i             ),
     .rst_ni         ( rst_ni            ),
     .randomize_i    ( 1'b0              ),
@@ -109,11 +112,11 @@ module tb_fir_datapath;
 
   hwpe_stream_traffic_gen #(
     .STIM_FILE      ( STIM_FILE_H        ),
-    .DATA_WIDTH     ( DATA_WIDTH*NB_TAPS ),
+    .DATA_WIDTH     ( DATA_WIDTH_H       ),
     .RESERVOIR_SIZE ( RESERVOIR_SIZE_H   ),
     .RANDOM_STROBE  ( 1'b0               ),
     .PROB_STALL     ( PROB_STALL_GEN     )
-  ) i_traffic_gen (
+  ) i_traffic_gen_h (
     .clk_i          ( clk_i             ),
     .rst_ni         ( rst_ni            ),
     .randomize_i    ( 1'b0              ),
@@ -126,8 +129,8 @@ module tb_fir_datapath;
 
   // Design Under Test (FIR)
   fir_datapath #(
-    .DATA_WIDTH ( 32 ),
-    .NB_TAPS    (  2 )
+    .DATA_WIDTH ( DATA_WIDTH ),
+    .NB_TAPS    ( NB_TAPS    )
   ) i_dut (
     .clk_i   ( clk_i    ),
     .rst_ni  ( rst_ni   ),
@@ -144,7 +147,7 @@ module tb_fir_datapath;
     .RESERVOIR_SIZE ( RECEIVER_SIZE_Y ),
     .CHECK          ( 1'b1            ),
     .PROB_STALL     ( PROB_STALL_RECV )
-  ) i_traffic_recv (
+  ) i_traffic_recv_y (
     .clk_i          ( clk_i             ),
     .rst_ni         ( rst_ni            ),
     .force_unready_i( force_unready_gen ),
