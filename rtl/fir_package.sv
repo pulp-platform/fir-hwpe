@@ -83,4 +83,8 @@ package fir_package;
     FSM_TERMINATE
   } state_fsm_t;
 
+  typedef struct packed {
+    logic [5:0] right_shift;
+  } fir_datapath_ctrl_t;
+
 endpackage // fir_package

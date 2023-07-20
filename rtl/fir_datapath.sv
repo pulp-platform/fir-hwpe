@@ -26,6 +26,7 @@ module fir_datapath
   input  logic                   clk_i,
   input  logic                   rst_ni,
   input  logic                   clear_i,
+  input  fir_datapath_ctrl_t     ctrl_i,
   // input x stream
   hwpe_stream_intf_stream.sink   x,
   // input h stream
@@ -49,20 +50,20 @@ module fir_datapath
   // are easily synthesizable and much more readable than Verilog-2001-ish code.
 
   // Unrolled HWPE-Stream signals
-  logic [DATA_WIDTH-1:0] x_data,      y_data;
-  logic                  x_valid,     y_valid;
-  logic                  x_ready,     y_ready;
-  logic                  x_handshake, y_handshake;
-  logic [NB_TAPS-1:0][DATA_WIDTH-1:0] h_data;
-  logic                               h_valid;
-  logic                               h_ready;
-  logic                               h_handshake;
+  logic signed [DATA_WIDTH-1:0] x_data,      y_data;
+  logic                         x_valid,     y_valid;
+  logic                         x_ready,     y_ready;
+  logic                         x_handshake, y_handshake;
+  logic signed [NB_TAPS-1:0][DATA_WIDTH-1:0] h_data;
+  logic                                      h_valid;
+  logic                                      h_ready;
+  logic                                      h_handshake;
   // delayed inputs and valids
-  logic [NB_TAPS-1:0][DATA_WIDTH-1:0] x_delay_q;
-  logic [NB_TAPS-1:0]                 x_delay_valid_q;
+  logic signed [NB_TAPS-1:0][DATA_WIDTH-1:0] x_delay_q;
+  logic        [NB_TAPS-1:0]                 x_delay_valid_q;
   // FIR products
-  logic [NB_TAPS-1:0][DATA_WIDTH*2-1:0] prod_d;
-  logic [DATA_WIDTH*2-1:0] y_nonshifted_d;
+  logic signed [NB_TAPS-1:0][DATA_WIDTH*2-1:0]    prod_d;
+  logic signed [DATA_WIDTH*2+$clog2(NB_TAPS)-1:0] y_nonshifted_d;
 
   // Unroll all HWPE-Stream sink modports into `logic` bit vectors for convenience.
   // Notice that for simple combinational logic we tend to prefer `assign` to `always_comb`.
@@ -98,7 +99,7 @@ module fir_datapath
   // the shift register. We only need the actual `valid` for the last tap, so an alternative choice
   // would be to propagate only the data and use a separate counter for handshakes, activating the
   // "last `valid`" after `NB_TAPS-1` handshakes.
-  for (genvar ii=1; ii<NB_TAPS-1; ii++) begin : x_delay_gen
+  for (genvar ii=1; ii<NB_TAPS; ii++) begin : x_delay_gen
     always_ff @(posedge clk_i or negedge rst_ni)
     begin
       if(~rst_ni) begin
@@ -119,8 +120,13 @@ module fir_datapath
   // The product between the delayed x and the h coefficients is computed in parallel.
   // Taps arrive parallelly in `h_data`.
   // We also use generate-loops here.
+  // Notice the usage of the `signed'` cast operator:
+  //  - data extracted with a bit-slice or a part-select is unsigned by default, so it
+  //    needs to be casted to signed
+  //  - in any case, the operators are 16-bit, therefore the result of the multiplication
+  //    needs to be casted to 32-bit, which is done by multiplying by 32'sh1
   for (genvar ii=0; ii<NB_TAPS; ii++) begin : product_gen
-    assign prod_d[ii] = h_data[ii] * x_delay_q[ii];
+    assign prod_d[ii] = 64'sh1 * signed'(h_data[ii]) * signed'(x_delay_q[ii]);
   end
 
   // The sum of all products is computed as a chain of additions. In this case, we preferred
@@ -136,15 +142,17 @@ module fir_datapath
   // these behavioral loops, and multi-letter index variables (`ii`) for generate-loops.
   always_comb
   begin 
-    y_nonshifted_d = prod_d[0];
+    y_nonshifted_d = 64'sh0 + signed'(prod_d[0]);
     for (int i=1; i<NB_TAPS; i++) begin
-      y_nonshifted_d += prod_d[i];
+      y_nonshifted_d += 64'sh0 + signed'(prod_d[i]);
     end
   end
 
   // Right-shift y so that it is aligned to the original data width.
-  assign y_data  = y_nonshifted_d >> DATA_WIDTH;
-  assign y_valid = x_delay_valid_q[NB_TAPS-1];
+  // Notice the usage of the `>>>` operator, which is a logical shift (i.e., it preservs sign)
+  // and of the `signed` cast operator.
+  assign y_data  = signed'(y_nonshifted_d) >>> ctrl_i.right_shift;
+  assign y_valid = x_valid; // x_delay_valid_q[NB_TAPS-1];
   
   // Unroll the HWPE-Stream source modports into `logic` bit vectors for convenience.
   // y in --> out

@@ -21,14 +21,15 @@ module tb_fir_datapath;
   // parameters
   parameter PROB_STALL_GEN  = 0.1;
   parameter PROB_STALL_RECV = 0.1;
+  parameter NB_TAPS = 50;
   parameter RESERVOIR_SIZE_X = 512;
-  parameter RESERVOIR_SIZE_H = 1;
+  parameter RESERVOIR_SIZE_H = NB_TAPS;
   parameter RECEIVER_SIZE_Y  = 512;
+  parameter RIGHT_SHIFT = 17;
   parameter STIM_FILE_X = "x_stim.txt";
   parameter STIM_FILE_H = "h_stim.txt";
   parameter STIM_FILE_Y = "y_gold.txt";
   parameter DATA_WIDTH = 16;
-  parameter NB_TAPS = 50;
 
   // ATI timing parameters.
   localparam TCP = 1.0ns; // clock period, 1 GHz clock
@@ -40,6 +41,9 @@ module tb_fir_datapath;
   // global signals
   logic clk_i  = '0;
   logic rst_ni = '1;
+
+  // control signals
+  fir_package::fir_datapath_ctrl_t fir_datapath_ctrl;
 
   // Performs one entire clock cycle.
   task cycle;
@@ -80,7 +84,7 @@ module tb_fir_datapath;
     .clk ( clk_i )
   );
   hwpe_stream_intf_stream #(
-    .DATA_WIDTH ( DATA_WIDTH )
+    .DATA_WIDTH ( DATA_WIDTH*RESERVOIR_SIZE_H )
   ) h_stream (
     .clk ( clk_i )
   );
@@ -111,34 +115,47 @@ module tb_fir_datapath;
     .pop_o          ( x_stream          )
   );
 
-  hwpe_stream_traffic_gen #(
-    .STIM_FILE      ( STIM_FILE_H        ),
-    .DATA_WIDTH     ( DATA_WIDTH_H       ),
-    .RESERVOIR_SIZE ( RESERVOIR_SIZE_H   ),
-    .RANDOM_STROBE  ( 1'b0               ),
-    .PROB_STALL     ( PROB_STALL_GEN     )
-  ) i_traffic_gen_h (
-    .clk_i          ( clk_i             ),
-    .rst_ni         ( rst_ni            ),
-    .randomize_i    ( 1'b0              ),
-    .force_invalid_i( force_invalid_gen ),
-    .force_valid_i  ( force_valid_gen   ),
-    .eot_o          ( eot_gen [1]       ),
-    .rng_i          ( rng_gen           ),
-    .pop_o          ( h_stream          )
-  );
+  // hwpe_stream_traffic_gen #(
+  //   .STIM_FILE      ( STIM_FILE_H        ),
+  //   .DATA_WIDTH     ( DATA_WIDTH_H       ),
+  //   .RESERVOIR_SIZE ( RESERVOIR_SIZE_H   ),
+  //   .RANDOM_STROBE  ( 1'b0               ),
+  //   .PROB_STALL     ( PROB_STALL_GEN     )
+  // ) i_traffic_gen_h (
+  //   .clk_i          ( clk_i             ),
+  //   .rst_ni         ( rst_ni            ),
+  //   .randomize_i    ( 1'b0              ),
+  //   .force_invalid_i( force_invalid_gen ),
+  //   .force_valid_i  ( force_valid_gen   ),
+  //   .eot_o          ( eot_gen [1]       ),
+  //   .rng_i          ( rng_gen           ),
+  //   .pop_o          (                   )
+  // );
+
+  logic [DATA_WIDTH-1:0] reservoir_h [RESERVOIR_SIZE_H];
+  logic [RESERVOIR_SIZE_H*DATA_WIDTH-1:0] reservoir_h_packed;
+
+  for(genvar ii=0; ii<RESERVOIR_SIZE_H; ii++) begin
+    assign reservoir_h_packed[ii*DATA_WIDTH +: DATA_WIDTH] = reservoir_h[ii];
+  end
+
+  assign h_stream.valid = 1'b1;
+  assign h_stream.data = reservoir_h_packed;
+  assign h_stream.strb = '1;
+  assign fir_datapath_ctrl.right_shift = RIGHT_SHIFT;
 
   // Design Under Test (FIR)
   fir_datapath #(
     .DATA_WIDTH ( DATA_WIDTH ),
     .NB_TAPS    ( NB_TAPS    )
   ) i_dut (
-    .clk_i   ( clk_i    ),
-    .rst_ni  ( rst_ni   ),
-    .clear_i ( clear_i  ),
-    .x       ( x_stream ),
-    .h       ( h_stream ),
-    .y       ( y_stream )
+    .clk_i   ( clk_i             ),
+    .rst_ni  ( rst_ni            ),
+    .clear_i ( clear_i           ),
+    .ctrl_i  ( fir_datapath_ctrl ),
+    .x       ( x_stream          ),
+    .h       ( h_stream          ),
+    .y       ( y_stream          )
   );
 
   // HWPE-Stream traffic receiver
@@ -196,6 +213,7 @@ module tb_fir_datapath;
   initial begin
 
     integer id;
+    $readmemh(STIM_FILE_H, reservoir_h);
 
     #(70*TCP);
     // release unready
