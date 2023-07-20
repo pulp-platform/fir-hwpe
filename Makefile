@@ -82,7 +82,10 @@ $(BENDER): sim
 	--tlsv1.2 https://pulp-platform.github.io/bender/init -sSf | sh -s -- 0.24.0
 	mv bender $(BENDER)
 
-update-ips: $(BENDER)
+deps/hwpe-ctrl deps/hwpe-stream:
+	git submodule update --init
+
+update-ips: $(BENDER) deps/hwpe-ctrl deps/hwpe-stream
 	$(BENDER) update
 	$(BENDER) script vsim        \
 	--vlog-arg="$(compile_flag)" \
