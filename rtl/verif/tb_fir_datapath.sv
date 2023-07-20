@@ -67,7 +67,8 @@ module tb_fir_datapath;
   logic enable_i = '1;
   logic clear_i  = '0;
   // end of test signals
-  logic eot_gen, eot_recv;
+  logic eot_recv;
+  logic [1:0] eot_gen;
   // force signals
   logic force_invalid_gen = 1'b1, force_valid_gen = 1'b0;
   logic force_unready_gen = 1'b1, force_ready_gen = 1'b0;
@@ -105,7 +106,7 @@ module tb_fir_datapath;
     .randomize_i    ( 1'b0              ),
     .force_invalid_i( force_invalid_gen ),
     .force_valid_i  ( force_valid_gen   ),
-    .eot_o          ( eot_gen           ),
+    .eot_o          ( eot_gen [0]       ),
     .rng_i          ( rng_gen           ),
     .pop_o          ( x_stream          )
   );
@@ -122,7 +123,7 @@ module tb_fir_datapath;
     .randomize_i    ( 1'b0              ),
     .force_invalid_i( force_invalid_gen ),
     .force_valid_i  ( force_valid_gen   ),
-    .eot_o          ( eot_gen           ),
+    .eot_o          ( eot_gen [1]       ),
     .rng_i          ( rng_gen           ),
     .pop_o          ( h_stream          )
   );
@@ -203,7 +204,7 @@ module tb_fir_datapath;
     // release invalid
     force_invalid_gen <= #TA 1'b0;
 
-    while(~eot_gen | ~eot_recv)
+    while(~eot_gen[0] | ~eot_gen[1] | ~eot_recv)
       #(TCP);
     $display("Testbench: Test finished.");
     $finish;

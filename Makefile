@@ -29,7 +29,9 @@ compile_script ?= compile.tcl
 compile_flag   ?= -suppress 2583 -suppress 13314
 
 WORK_PATH = $(BUILD_DIR)
-STIM_FILE = $(BUILD_DIR)/stimuli.txt
+STIM_FILE_X = ../rtl/verif/x_stim.txt 
+STIM_FILE_H = ../rtl/verif/h_stim.txt
+STIM_FILE_Y = ../rtl/verif/y_gold.txt 
 RESERVOIR_SIZE = 1024
 
 # Useful Parameters
@@ -49,29 +51,27 @@ SHELL := /bin/bash
 
 # Generate instructions and data stimuli
 # Run the simulation
-run: $(STIM_FILE)
+run:
 ifeq ($(gui), 0)
 	cd $(BUILD_DIR);                       \
 	$(QUESTA) vsim -c vopt_tb -do "run -a" \
 	-gPROB_STALL_GEN=$(P_STALL_GEN)        \
 	-gPROB_STALL_RECV=$(P_STALL_RECV)      \
-	-gSTIM_FILE=$(STIM_FILE)            \
+	-gSTIM_FILE_X=$(STIM_FILE_X)           \
+	-gSTIM_FILE_H=$(STIM_FILE_H)           \
+	-gSTIM_FILE_Y=$(STIM_FILE_Y)           \
 	-gRESERVOIR_SIZE=$(RESERVOIR_SIZE)
 else
-	cd sim; $(QUESTA) vsim vopt_tb              \
+	cd sim; $(QUESTA) vsim vopt_tb          \
 	-do "add log -r sim:/tb_fir_datapath/*" \
-	-do "source $(WAVES)"               \
-	-gPROB_STALL_GEN=$(P_STALL_GEN)        \
-	-gPROB_STALL_RECV=$(P_STALL_RECV)      \
-	-gSTIM_FILE=$(STIM_FILE)            \
+	-do "source $(WAVES)"                   \
+	-gPROB_STALL_GEN=$(P_STALL_GEN)         \
+	-gPROB_STALL_RECV=$(P_STALL_RECV)       \
+	-gSTIM_FILE_X=$(STIM_FILE_X)            \
+	-gSTIM_FILE_H=$(STIM_FILE_H)            \
+	-gSTIM_FILE_Y=$(STIM_FILE_Y)            \
 	-gRESERVOIR_SIZE=$(RESERVOIR_SIZE)
 endif
-
-gen-stimuli: $(STIM_FILE)
-
-$(STIM_FILE): $(BUILD_DIR)
-	@echo "Generating stimuli..."
-	sim/gen_stimuli.py $(RESERVOIR_SIZE) $(STIM_FILE)
 
 # Download bender
 sim:
