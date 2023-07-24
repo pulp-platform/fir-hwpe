@@ -157,6 +157,7 @@ module fir_datapath
   // Unroll the HWPE-Stream source modports into `logic` bit vectors for convenience.
   // y in --> out
   assign y.data  = y_data;
+  assign y.strb  = '1;
   assign y.valid = y_valid;
   // y out --> in
   assign y_ready = y.ready;
