@@ -37,7 +37,6 @@ module fir_tap_buffer
   logic                  h_serial_valid;
   logic                  h_serial_ready;
   logic                  h_serial_handshake;
-  logic [NB_TAPS-1:0][DATA_WIDTH-1:0] h_parallel_data;
   logic                               h_parallel_valid;
   logic                               h_parallel_ready;
   logic                               h_parallel_handshake;
@@ -101,7 +100,7 @@ module fir_tap_buffer
 
   // Unroll all HWPE-Stream source modports into `logic` bit vectors for convenience.
   // h_parallel out --> in
-  assign h_parallel.data     = h_parallel_data;
+  assign h_parallel.data     = h_parallel_q;
   assign h_parallel.valid    = h_parallel_valid;
   // h_parallel in --> out
   assign h_parallel_ready    = h_parallel.ready;

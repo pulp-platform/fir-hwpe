@@ -152,7 +152,7 @@ module fir_datapath
   // Notice the usage of the `>>>` operator, which is a logical shift (i.e., it preservs sign)
   // and of the `signed` cast operator.
   assign y_data  = signed'(y_nonshifted_d) >>> ctrl_i.right_shift;
-  assign y_valid = x_valid;
+  assign y_valid = x_valid & h_valid;
   
   // Unroll the HWPE-Stream source modports into `logic` bit vectors for convenience.
   // y in --> out

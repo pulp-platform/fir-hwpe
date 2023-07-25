@@ -17,6 +17,7 @@ sources:
       # Level 0
       - rtl/fir_package.sv
       # Level 1
+      - rtl/fir_tap_buffer.sv
       - rtl/fir_datapath.sv
       - rtl/fir_fsm.sv
       - rtl/fir_streamer.sv
@@ -29,3 +30,4 @@ sources:
       - target: test
         files:
           - rtl/verif/tb_fir_datapath.sv
+          - rtl/verif/tb_fir_buffer_datapath.sv

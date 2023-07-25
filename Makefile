@@ -17,6 +17,9 @@
 #         Francesco Conti (f.conti@unibo.it)
 #
 
+# valid alternatives are: tb_fir_datapath, tb_fir_buffer_datapath
+TESTBENCH ?= tb_fir_datapath
+
 # Paths to folders
 mkfile_path    := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
 BUILD_DIR      ?= $(mkfile_path)/sim/build
@@ -63,7 +66,7 @@ ifeq ($(gui), 0)
 	-gRESERVOIR_SIZE=$(RESERVOIR_SIZE)
 else
 	cd sim; $(QUESTA) vsim vopt_tb          \
-	-do "add log -r sim:/tb_fir_datapath/*" \
+	-do "add log -r sim:/$(TESTBENCH)/*" \
 	-do "source $(WAVES)"                   \
 	-gPROB_STALL_GEN=$(P_STALL_GEN)         \
 	-gPROB_STALL_RECV=$(P_STALL_RECV)       \
@@ -104,7 +107,7 @@ hw-clean-all:
 	rm -rf .cached_ipdb.json
 
 hw-opt:
-	cd sim; $(QUESTA) vopt +acc=npr -o vopt_tb tb_fir_datapath -floatparameters+tb_fir_datapath -work $(BUILD_DIR)/work
+	cd sim; $(QUESTA) vopt +acc=npr -o vopt_tb $(TESTBENCH) -floatparameters+$(TESTBENCH) -work $(BUILD_DIR)/work
 
 hw-compile:
 	cd sim; $(QUESTA) vsim -c +incdir+$(UVM_HOME) -do 'quit -code [source $(compile_script)]'
