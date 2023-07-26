@@ -20,7 +20,6 @@ sources:
       # Level 1
       - rtl/fir_tap_buffer.sv
       - rtl/fir_datapath.sv
-      - rtl/fir_fsm.sv
       - rtl/fir_streamer.sv
       # Level 2
       - rtl/fir_ctrl.sv

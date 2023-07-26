@@ -1,0 +1,2 @@
+overrides:
+  hwpe-stream: { path: "deps/hwpe-stream" }

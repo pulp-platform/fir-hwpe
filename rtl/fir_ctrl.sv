@@ -61,13 +61,11 @@ module fir_ctrl
   //    from the datapath and streamer, and the internal state to drive the 
   //    `ctrl` signals outgoing towards the datapath and streamer.
 
-  ctrl_slave_t   slave_ctrl;
-  flags_slave_t  slave_flags;
-  ctrl_regfile_t reg_file;
+  hwpe_ctrl_package::ctrl_slave_t   slave_ctrl;
+  hwpe_ctrl_package::flags_slave_t  slave_flags;
+  hwpe_ctrl_package::ctrl_regfile_t reg_file;
 
   fir_config_t config_;
-
-  ctrl_fsm_t fsm_ctrl;
 
   // Peripheral slave & register file
   // The main parameters necessary to instantiate the register file are the following:
@@ -154,7 +152,7 @@ module fir_ctrl
     state_d = state_q;
     case(state_q)
       FSM_IDLE: begin
-        if(slave_ctrl.start) begin
+        if(slave_flags.start) begin
           state_d = FSM_TAP_BUFFER;
         end
       end
@@ -185,11 +183,11 @@ module fir_ctrl
   assign streamer_ctrl_o.x_source_ctrl.addressgen_ctrl.d1_len    = 1;
   assign streamer_ctrl_o.x_source_ctrl.addressgen_ctrl.d1_stride = 0;
   assign streamer_ctrl_o.x_source_ctrl.addressgen_ctrl.d2_stride = 0;
-  assign streamer_ctrl_o.x_source_ctrl.addressgen_ctrl.dim_enable_1h = HWPE_STREAM_ADDRESSGEN_1D; // single-dimension counting
+  assign streamer_ctrl_o.x_source_ctrl.addressgen_ctrl.dim_enable_1h = hwpe_stream_package::HWPE_STREAM_ADDRESSGEN_1D; // single-dimension counting
 
-  assign streamer_ctrl_o.x_serialize_ctrl.first_stream = 0;
+  assign streamer_ctrl_o.x_serialize_ctrl.first_stream       = 0;
   assign streamer_ctrl_o.x_serialize_ctrl.clear_serdes_state = FSM_IDLE;
-  assign streamer_ctrl_o.x_serialize_ctrl.nb_contig_m1 = 1;
+  assign streamer_ctrl_o.x_serialize_ctrl.nb_contig_m1       = 1;
 
   // H stream
   // We start the H streamer as soon as possible, but this will leave a bit of 
@@ -203,11 +201,11 @@ module fir_ctrl
   assign streamer_ctrl_o.h_source_ctrl.addressgen_ctrl.d1_len    = 1;
   assign streamer_ctrl_o.h_source_ctrl.addressgen_ctrl.d1_stride = 0;
   assign streamer_ctrl_o.h_source_ctrl.addressgen_ctrl.d2_stride = 0;
-  assign streamer_ctrl_o.h_source_ctrl.addressgen_ctrl.dim_enable_1h = HWPE_STREAM_ADDRESSGEN_1D; // single-dimension counting
+  assign streamer_ctrl_o.h_source_ctrl.addressgen_ctrl.dim_enable_1h = hwpe_stream_package::HWPE_STREAM_ADDRESSGEN_1D; // single-dimension counting
 
-  assign streamer_ctrl_o.h_serialize_ctrl.first_stream = 0;
+  assign streamer_ctrl_o.h_serialize_ctrl.first_stream       = 0;
   assign streamer_ctrl_o.h_serialize_ctrl.clear_serdes_state = FSM_IDLE;
-  assign streamer_ctrl_o.h_serialize_ctrl.nb_contig_m1 = 1;
+  assign streamer_ctrl_o.h_serialize_ctrl.nb_contig_m1       = 1;
 
   // Y stream
   // We start even the Y streamer immediately at the start. It will really start
@@ -220,11 +218,11 @@ module fir_ctrl
   assign streamer_ctrl_o.y_sink_ctrl.addressgen_ctrl.d1_len    = 1;
   assign streamer_ctrl_o.y_sink_ctrl.addressgen_ctrl.d1_stride = 0;
   assign streamer_ctrl_o.y_sink_ctrl.addressgen_ctrl.d2_stride = 0;
-  assign streamer_ctrl_o.y_sink_ctrl.addressgen_ctrl.dim_enable_1h = HWPE_STREAM_ADDRESSGEN_1D; // single-dimension counting
+  assign streamer_ctrl_o.y_sink_ctrl.addressgen_ctrl.dim_enable_1h = hwpe_stream_package::HWPE_STREAM_ADDRESSGEN_1D; // single-dimension counting
 
-  assign streamer_ctrl_o.y_serialize_ctrl.first_stream = 0;
-  assign streamer_ctrl_o.y_serialize_ctrl.clear_serdes_state = FSM_IDLE;
-  assign streamer_ctrl_o.y_serialize_ctrl.nb_contig_m1 = 1;
+  assign streamer_ctrl_o.y_deserialize_ctrl.first_stream       = 0;
+  assign streamer_ctrl_o.y_deserialize_ctrl.clear_serdes_state = FSM_IDLE;
+  assign streamer_ctrl_o.y_deserialize_ctrl.nb_contig_m1       = 1;
 
   // Simply propagate the correct right shift to the datapath
   assign datapath_ctrl_o.right_shift = config_.right_shift;

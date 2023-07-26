@@ -13,7 +13,9 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package fir_package
+// Packages are collections of 
+
+package fir_package;
 
   typedef enum {
     FSM_IDLE,
@@ -42,22 +44,22 @@ package fir_package
   } fir_config_t;
 
   typedef struct packed {
-    hwpe_stream_package::ctrl_sourcesink_t x_source_ctrl;
-    hwpe_stream_package::ctrl_sourcesink_t h_source_ctrl;
-    hwpe_stream_package::ctrl_sourcesink_t y_sink_ctrl;
-    hwpe_stream_package::ctrl_serdes_t     x_serialize_ctrl;
-    hwpe_stream_package::ctrl_serdes_t     h_serialize_ctrl;
-    hwpe_stream_package::ctrl_serdes_t     y_deserialize_ctrl;
+    hci_package::hci_streamer_ctrl_t   x_source_ctrl;
+    hci_package::hci_streamer_ctrl_t   h_source_ctrl;
+    hci_package::hci_streamer_ctrl_t   y_sink_ctrl;
+    hwpe_stream_package::ctrl_serdes_t x_serialize_ctrl;
+    hwpe_stream_package::ctrl_serdes_t h_serialize_ctrl;
+    hwpe_stream_package::ctrl_serdes_t y_deserialize_ctrl;
   } fir_streamer_ctrl_t;
 
   typedef struct packed {
-    hwpe_stream_package::flags_sourcesink_t x_source_flags;
-    hwpe_stream_package::flags_sourcesink_t h_source_flags;
-    hwpe_stream_package::flags_sourcesink_t y_sink_flags;
+    hci_package::hci_streamer_flags_t x_source_flags;
+    hci_package::hci_streamer_flags_t h_source_flags;
+    hci_package::hci_streamer_flags_t y_sink_flags;
   } fir_streamer_flags_t;
 
-  typedef struct packed {
-  } fir_tap_buffer_ctrl_t;
+  // typedef struct packed {
+  // } fir_tap_buffer_ctrl_t;
 
   typedef struct packed {
     logic done;
