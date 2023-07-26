@@ -50,7 +50,8 @@ int main() {
   // wait for end of computation
   asm volatile ("wfi" ::: "memory");
 
-  // FIXME: no check
+  errors = fir_compare_int(y_actual, y_gold, sizeof(y_gold)/sizeof(y_gold[0]));
+  tfp_printf("errors: %d\n", errors);
 
   // return errors
   *(int *) 0x80000000 = errors;
