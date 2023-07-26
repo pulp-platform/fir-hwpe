@@ -55,7 +55,7 @@ module fir_streamer
   hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) y_split [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) x_split_postfifo [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) h_split_postfifo [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) y_split_prefifo  [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) y_split_prefence [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) x_prefifo  ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) h_prefifo  ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) y_postfifo ( .clk ( clk_i ) );
@@ -250,8 +250,20 @@ module fir_streamer
     .clear_i     ( clear_i                   ),
     .ctrl_i      ( ctrl_i.y_deserialize_ctrl ),
     .push_i      ( y_postfifo                ),
-    .pop_o       ( y_split          )
+    .pop_o       ( y_split_prefence          )
   );
+  // y fence
+  hwpe_stream_fence #(
+    .NB_STREAMS ( MEM_WIDTH/DATA_WIDTH ),
+    .DATA_WIDTH ( DATA_WIDTH           )
+  ) i_y_fence (
+    .clk_i       ( clk_i                     ),
+    .rst_ni      ( rst_ni                    ),
+    .clear_i     ( clear_i                   ),
+    .test_mode_i ( 1'b0                      ),
+    .push_i      ( y_split_prefence          ),
+    .pop_o       ( y_split                   )
+  ); 
   // y merge
   hwpe_stream_merge #(
     .NB_IN_STREAMS ( MEM_WIDTH/DATA_WIDTH ),
