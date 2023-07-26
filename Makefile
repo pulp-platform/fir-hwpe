@@ -74,7 +74,7 @@ endif
 # Run the simulation
 run:
 ifeq ($(gui), 0)
-	cd $(BUILD_DIR);                       \
+	cd sim;                                \
 	$(QUESTA) vsim -c vopt_tb -do "run -a" \
 	$(VSIM_PARAMS)	
 else
