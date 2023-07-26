@@ -44,10 +44,10 @@ module fir_top
   fir_tap_buffer_flags_t tap_buffer_flags;
 
   // Interface declarations
-  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) ) x_stream ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) ) h_stream ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) ) h_buffer_stream ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) ) y_stream ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) )         x_stream        ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) )         h_stream        ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH*NB_TAPS ) ) h_buffer_stream ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) )         y_stream        ( .clk ( clk_i ) );
 
   // Tap buffer
   fir_tap_buffer #(
@@ -66,7 +66,7 @@ module fir_top
   fir_datapath #(
     .DATA_WIDTH ( DATA_WIDTH ),
     .NB_TAPS    ( NB_TAPS    )
-  ) i_dut (
+  ) i_datapath (
     .clk_i   ( clk_i             ),
     .rst_ni  ( rst_ni            ),
     .clear_i ( clear             ),

@@ -57,6 +57,7 @@ include sw/sw.mk
 
 # Simulation parameters
 ifneq ($(TESTBENCH), tb_fir_top)
+VSIM_DEPS=
 VSIM_PARAMS=-gPROB_STALL_GEN=$(P_STALL_GEN) \
 	-gPROB_STALL_RECV=$(P_STALL_RECV)       \
 	-gSTIM_FILE_X=$(STIM_FILE_X)            \
@@ -64,9 +65,10 @@ VSIM_PARAMS=-gPROB_STALL_GEN=$(P_STALL_GEN) \
 	-gSTIM_FILE_Y=$(STIM_FILE_Y)            \
 	-gRESERVOIR_SIZE=$(RESERVOIR_SIZE)
 else
+VSIM_DEPS=$(CRT)
 VSIM_PARAMS=-gPROB_STALL=$(P_STALL_GEN) \
-	-gSTIM_INSTR=stim_instr.txt         \
-	-gSTIM_DATA=stim_data.txt
+	-gSTIM_INSTR=build/stim_instr.txt         \
+	-gSTIM_DATA=build/stim_data.txt
 endif
 
 # Run the simulation

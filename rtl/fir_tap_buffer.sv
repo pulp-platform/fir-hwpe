@@ -81,10 +81,10 @@ module fir_tap_buffer
   always_ff @(posedge clk_i or negedge rst_ni)
   begin
     if(~rst_ni) begin
-      h_parallel_q[tap_counter_q] <= '0;
+      h_parallel_q <= '0;
     end
     else if(clear_i) begin
-      h_parallel_q[tap_counter_q] <= '0;
+      h_parallel_q <= '0;
     end
     else if(h_serial_handshake) begin
       h_parallel_q[tap_counter_q] <= h_serial_data;
@@ -105,6 +105,7 @@ module fir_tap_buffer
   // h_parallel out --> in
   assign h_parallel.data     = h_parallel_q;
   assign h_parallel.valid    = h_parallel_valid;
+  assign h_parallel.strb     = '1;
   // h_parallel in --> out
   assign h_parallel_ready    = h_parallel.ready;
   // h_parallel handshake

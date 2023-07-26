@@ -34,10 +34,10 @@
 #define FIR_RUNNING_JOB      0x10
 #define FIR_SOFT_CLEAR       0x14
 
-#define FIR_REG_X_ADDR       0x40
-#define FIR_REG_H_ADDR       0x44
-#define FIR_REG_Y_ADDR       0x48
-#define FIR_REG_SHIFT_LENGTH 0x4c
+#define FIR_REG_X_ADDR       0x20
+#define FIR_REG_H_ADDR       0x24
+#define FIR_REG_Y_ADDR       0x28
+#define FIR_REG_SHIFT_LENGTH 0x2c
 
 /* LOW-LEVEL HAL */
 #define FIR_ADDR_BASE 0x100000

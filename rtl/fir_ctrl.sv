@@ -66,6 +66,8 @@ module fir_ctrl
   hwpe_ctrl_package::ctrl_regfile_t reg_file;
 
   fir_config_t config_;
+  
+  fir_fsm_state_t state_d, state_q;
 
   // Peripheral slave & register file
   // The main parameters necessary to instantiate the register file are the following:
@@ -90,6 +92,9 @@ module fir_ctrl
     .flags_o  ( slave_flags ),
     .reg_file ( reg_file    )
   );
+  assign slave_ctrl.done = (state_d == FSM_IDLE && state_q == FSM_COMPUTE) ? 1'b1 : 1'b0;
+  assign slave_ctrl.evt  = (state_d == FSM_IDLE && state_q == FSM_COMPUTE) ? 1'b1 : 1'b0;
+  assign slave_ctrl.ext_flags = '0;
   assign evt_o = slave_flags.evt;
 
   // Config <-> register file mappings
@@ -131,8 +136,6 @@ module fir_ctrl
   //    using a Moore machine, but generally easier to design.
   //  - removing specific combinational paths on a case-by-case basis after
   //    a preliminary synthesis to identify "dangerous" paths.
-  
-  fir_fsm_state_t state_d, state_q;
 
   always_ff @(posedge clk_i or negedge rst_ni)
   begin : main_fsm_seq
@@ -187,7 +190,7 @@ module fir_ctrl
 
   assign streamer_ctrl_o.x_serialize_ctrl.first_stream       = 0;
   assign streamer_ctrl_o.x_serialize_ctrl.clear_serdes_state = FSM_IDLE;
-  assign streamer_ctrl_o.x_serialize_ctrl.nb_contig_m1       = 1;
+  assign streamer_ctrl_o.x_serialize_ctrl.nb_contig_m1       = 0;
 
   // H stream
   // We start the H streamer as soon as possible, but this will leave a bit of 
@@ -205,7 +208,7 @@ module fir_ctrl
 
   assign streamer_ctrl_o.h_serialize_ctrl.first_stream       = 0;
   assign streamer_ctrl_o.h_serialize_ctrl.clear_serdes_state = FSM_IDLE;
-  assign streamer_ctrl_o.h_serialize_ctrl.nb_contig_m1       = 1;
+  assign streamer_ctrl_o.h_serialize_ctrl.nb_contig_m1       = 0;
 
   // Y stream
   // We start even the Y streamer immediately at the start. It will really start
@@ -222,7 +225,7 @@ module fir_ctrl
 
   assign streamer_ctrl_o.y_deserialize_ctrl.first_stream       = 0;
   assign streamer_ctrl_o.y_deserialize_ctrl.clear_serdes_state = FSM_IDLE;
-  assign streamer_ctrl_o.y_deserialize_ctrl.nb_contig_m1       = 1;
+  assign streamer_ctrl_o.y_deserialize_ctrl.nb_contig_m1       = 0;
 
   // Simply propagate the correct right shift to the datapath
   assign datapath_ctrl_o.right_shift = config_.right_shift;

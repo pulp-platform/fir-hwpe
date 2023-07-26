@@ -50,12 +50,15 @@ module fir_streamer
   hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) x_mem ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) h_mem ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) y_mem ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) x_split [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) h_split [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) y_split [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) x_prefifo  ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) h_prefifo  ( .clk ( clk_i ) );
-  hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) y_postfifo ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) x_split [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) h_split [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) y_split [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) x_split_postfifo [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) h_split_postfifo [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) y_split_prefifo  [MEM_WIDTH/DATA_WIDTH-1:0] ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) x_prefifo  ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) h_prefifo  ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) y_postfifo ( .clk ( clk_i ) );
   hci_core_intf #( .DW ( MEM_WIDTH) ) tcdm_fifo [MP-1:0] ( .clk ( clk_i ) );
 
   // Source and sink modules are used as interfaces between memory protocols
@@ -170,18 +173,34 @@ module fir_streamer
     .push_i      ( x_mem   ),
     .pop_o       ( x_split )
   );
+  // x split FIFO -- necessary to avoid deadlocks with serializer in SYNC_READY mode
+  for(genvar ii=0; ii<MEM_WIDTH/DATA_WIDTH; ii++) begin : x_split_fifo_gen
+    hwpe_stream_fifo #(
+      .FIFO_DEPTH ( 2         ),
+      .DATA_WIDTH ( DATA_WIDTH )
+    ) i_h_split_fifo (
+      .clk_i       ( clk_i                  ),
+      .rst_ni      ( rst_ni                 ),
+      .clear_i     ( clear_i                ),
+      .flags_o     (                        ),
+      .push_i      ( x_split[ii]            ),
+      .pop_o       ( x_split_postfifo[ii]   )
+    );
+  end
   // x serialize
   hwpe_stream_serialize #(
     .NB_IN_STREAMS ( MEM_WIDTH/DATA_WIDTH ),
-    .DATA_WIDTH    ( DATA_WIDTH           )
+    .DATA_WIDTH    ( DATA_WIDTH           ),
+    .SYNC_READY    ( 1'b1                 )
   ) i_x_serialize (
     .clk_i       ( clk_i                   ),
     .rst_ni      ( rst_ni                  ),
     .clear_i     ( clear_i                 ),
     .ctrl_i      ( ctrl_i.x_serialize_ctrl ),
-    .push_i      ( x_split                 ),
+    .push_i      ( x_split_postfifo        ),
     .pop_o       ( x_prefifo               )
   );
+
   // h split
   hwpe_stream_split #(
     .NB_OUT_STREAMS ( MEM_WIDTH/DATA_WIDTH ),
@@ -193,18 +212,34 @@ module fir_streamer
     .push_i      ( h_mem   ),
     .pop_o       ( h_split )
   );
+  // h split FIFO -- necessary to avoid deadlocks with serializer in SYNC_READY mode
+  for(genvar ii=0; ii<MEM_WIDTH/DATA_WIDTH; ii++) begin : h_split_fifo_gen
+    hwpe_stream_fifo #(
+      .FIFO_DEPTH ( 2         ),
+      .DATA_WIDTH ( DATA_WIDTH )
+    ) i_h_split_fifo (
+      .clk_i       ( clk_i                  ),
+      .rst_ni      ( rst_ni                 ),
+      .clear_i     ( clear_i                ),
+      .flags_o     (                        ),
+      .push_i      ( h_split[ii]            ),
+      .pop_o       ( h_split_postfifo[ii]   )
+    );
+  end
   // h serialize
   hwpe_stream_serialize #(
     .NB_IN_STREAMS ( MEM_WIDTH/DATA_WIDTH ),
-    .DATA_WIDTH    ( DATA_WIDTH           )
+    .DATA_WIDTH    ( DATA_WIDTH           ),
+    .SYNC_READY    ( 1'b1                 )
   ) i_h_serialize (
     .clk_i       ( clk_i                   ),
     .rst_ni      ( rst_ni                  ),
     .clear_i     ( clear_i                 ),
     .ctrl_i      ( ctrl_i.h_serialize_ctrl ),
-    .push_i      ( h_split                 ),
+    .push_i      ( h_split_postfifo        ),
     .pop_o       ( h_prefifo               )
   );
+
   // y deserialize
   hwpe_stream_deserialize #(
     .NB_OUT_STREAMS ( MEM_WIDTH/DATA_WIDTH ),
@@ -215,7 +250,7 @@ module fir_streamer
     .clear_i     ( clear_i                   ),
     .ctrl_i      ( ctrl_i.y_deserialize_ctrl ),
     .push_i      ( y_postfifo                ),
-    .pop_o       ( y_split                   )
+    .pop_o       ( y_split          )
   );
   // y merge
   hwpe_stream_merge #(

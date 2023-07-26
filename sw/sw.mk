@@ -49,3 +49,6 @@ $(OBJ): $(BUILD_DIR)
 	$(CC) $(CC_OPTS) -c sw/tb_fir.c -I$(BUILD_DIR) -o $(OBJ)
 
 sw-all: $(STIM_INSTR) $(STIM_DATA)
+
+sw-clean:
+	rm -rf $(OBJ) $(CRT) $(BIN) $(STIM_DATA) $(STIM_INSTR)
