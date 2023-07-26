@@ -167,7 +167,7 @@ module fir_datapath
   // How to assign `ready` signals? This is often more challenging then `valid`s.
   // To avoid deadlocks, in HWPE-Streams the following rules have to be followed:
   //  1) transition of `ready` CAN depend on the current state of `valid`
-  //  2) transition of `valid` CANNOT depend on the current state of `ready`
+  //  2) transition of `valid` CAN NOT depend on the current state of `ready`
   //  3) transition 1->0 of `valid` MUST follow a handshake (i.e., once the `valid` goes
   //     to `1` it cannot revert to 0 until there is a handshake)
   // Ready signals generally have to be propagated backwards through pipeline

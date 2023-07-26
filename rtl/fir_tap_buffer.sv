@@ -29,7 +29,9 @@ module fir_tap_buffer
   // input x stream
   hwpe_stream_intf_stream.sink   h_serial,
   // output y stream
-  hwpe_stream_intf_stream.source h_parallel
+  hwpe_stream_intf_stream.source h_parallel,
+  fir_tap_buffer_ctrl_t          ctrl_i,
+  fir_tap_buffer_flags_t         flags_o
 );
 
   // Unrolled HWPE-Stream signals
@@ -37,9 +39,9 @@ module fir_tap_buffer
   logic                  h_serial_valid;
   logic                  h_serial_ready;
   logic                  h_serial_handshake;
-  logic                               h_parallel_valid;
-  logic                               h_parallel_ready;
-  logic                               h_parallel_handshake;
+  logic                  h_parallel_valid;
+  logic                  h_parallel_ready;
+  logic                  h_parallel_handshake;
 
   // Counter signals
   logic [$clog2(NB_TAPS):0] tap_counter_d, tap_counter_q;
@@ -96,7 +98,9 @@ module fir_tap_buffer
   // of the parallel taps is achieved when the tap_counter is at NB_TAPS.
   // This means that it will stop being valid as soon as new taps are streamed in;
   // there is no further "internal" control.
+  // This is also the "done" signal for the Tap Buffer.
   assign h_parallel_valid = (tap_counter_q == NB_TAPS);
+  assign flags_o.done = h_parallel_valid;
 
   // Unroll all HWPE-Stream source modports into `logic` bit vectors for convenience.
   // h_parallel out --> in

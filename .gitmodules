@@ -4,3 +4,6 @@
 [submodule "deps/hwpe-ctrl"]
 	path = deps/hwpe-ctrl
 	url = https://github.com/pulp-platform/hwpe-ctrl
+[submodule "deps/hci"]
+	path = deps/hci
+	url = https://github.com/pulp-platform/hci

@@ -115,23 +115,6 @@ module tb_fir_datapath;
     .pop_o          ( x_stream          )
   );
 
-  // hwpe_stream_traffic_gen #(
-  //   .STIM_FILE      ( STIM_FILE_H        ),
-  //   .DATA_WIDTH     ( DATA_WIDTH_H       ),
-  //   .RESERVOIR_SIZE ( RESERVOIR_SIZE_H   ),
-  //   .RANDOM_STROBE  ( 1'b0               ),
-  //   .PROB_STALL     ( PROB_STALL_GEN     )
-  // ) i_traffic_gen_h (
-  //   .clk_i          ( clk_i             ),
-  //   .rst_ni         ( rst_ni            ),
-  //   .randomize_i    ( 1'b0              ),
-  //   .force_invalid_i( force_invalid_gen ),
-  //   .force_valid_i  ( force_valid_gen   ),
-  //   .eot_o          ( eot_gen [1]       ),
-  //   .rng_i          ( rng_gen           ),
-  //   .pop_o          (                   )
-  // );
-
   logic [DATA_WIDTH-1:0] reservoir_h [RESERVOIR_SIZE_H];
   logic [RESERVOIR_SIZE_H*DATA_WIDTH-1:0] reservoir_h_packed;
 

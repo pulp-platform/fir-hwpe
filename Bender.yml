@@ -6,6 +6,7 @@ package:
 dependencies:
   hwpe-stream: { path: "deps/hwpe-stream" }
   hwpe-ctrl:   { path: "deps/hwpe-ctrl" }
+  hci:         { path: "deps/hci" }
 
 sources:
   - include_dirs:

@@ -13,14 +13,16 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import fir_package::*;
-import hwpe_ctrl_package::*;
-
 module fir_top
+  import fir_package::*;
+  import hwpe_ctrl_package::*;
+  import hci_package::*;
 #(
   parameter int unsigned N_CORES = 2,
-  parameter int unsigned MP  = 4,
-  parameter int unsigned ID  = 10
+  parameter int unsigned MP  = 3,
+  parameter int unsigned ID  = 10,
+  parameter int unsigned DATA_WIDTH = 16,
+  parameter int unsigned NB_TAPS = 50
 )
 (
   // global signals
@@ -30,50 +32,49 @@ module fir_top
   // events
   output logic [N_CORES-1:0][REGFILE_N_EVT-1:0] evt_o,
   // tcdm master ports
-  hwpe_stream_intf_tcdm.master                  tcdm[MP-1:0],
+  hci_core_intf.master                          tcdm[MP-1:0],
   // periph slave port
   hwpe_ctrl_intf_periph.slave                   periph
 );
 
   logic enable, clear;
-  ctrl_streamer_t  streamer_ctrl;
-  flags_streamer_t streamer_flags;
-  ctrl_engine_t    engine_ctrl;
-  flags_engine_t   engine_flags;
+  fir_streamer_ctrl_t streamer_ctrl;
+  fir_streamer_ctrl_t streamer_flags;
+  fir_datapath_ctrl_t datapath_ctrl;
 
-  hwpe_stream_intf_stream #(
-    .DATA_WIDTH(32)
-  ) a (
-    .clk ( clk_i )
-  );
-  hwpe_stream_intf_stream #(
-    .DATA_WIDTH(32)
-  ) b (
-    .clk ( clk_i )
-  );
-  hwpe_stream_intf_stream #(
-    .DATA_WIDTH(32)
-  ) c (
-    .clk ( clk_i )
-  );
-  hwpe_stream_intf_stream #(
-    .DATA_WIDTH(32)
-  ) d (
-    .clk ( clk_i )
+  // Interface declarations
+  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) ) x_stream ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) ) h_stream ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) ) h_buffer_stream ( .clk ( clk_i ) );
+  hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) ) y_stream ( .clk ( clk_i ) );
+
+  // Tap buffer
+  fir_tap_buffer #(
+    .DATA_WIDTH ( DATA_WIDTH ),
+    .NB_TAPS    ( NB_TAPS    )
+  ) i_tap_buffer (
+    .clk_i      ( clk_i           ),
+    .rst_ni     ( rst_ni          ),
+    .clear_i    ( clear           ),
+    .h_serial   ( h_stream        ),
+    .h_parallel ( h_buffer_stream )
   );
 
-  fir_engine i_engine (
-    .clk_i            ( clk_i          ),
-    .rst_ni           ( rst_ni         ),
-    .test_mode_i      ( test_mode_i    ),
-    .a_i              ( a.sink         ),
-    .b_i              ( b.sink         ),
-    .c_i              ( c.sink         ),
-    .d_o              ( d.source       ),
-    .ctrl_i           ( engine_ctrl    ),
-    .flags_o          ( engine_flags   )
+  // FIR datapath
+  fir_datapath #(
+    .DATA_WIDTH ( DATA_WIDTH ),
+    .NB_TAPS    ( NB_TAPS    )
+  ) i_dut (
+    .clk_i   ( clk_i             ),
+    .rst_ni  ( rst_ni            ),
+    .clear_i ( clear             ),
+    .ctrl_i  ( datapath_ctrl     ),
+    .x       ( x_stream          ),
+    .h       ( h_buffer_stream   ),
+    .y       ( y_stream          )
   );
 
+  // FIR streamer (load/store units)
   fir_streamer #(
     .MP ( MP )
   ) i_streamer (
@@ -82,15 +83,15 @@ module fir_top
     .test_mode_i      ( test_mode_i    ),
     .enable_i         ( enable         ),
     .clear_i          ( clear          ),
-    .a_o              ( a.source       ),
-    .b_o              ( b.source       ),
-    .c_o              ( c.source       ),
-    .d_i              ( d.sink         ),
+    .x_o              ( x_stream       ),
+    .h_o              ( h_stream       ),
+    .y_i              ( y_stream       ),
     .tcdm             ( tcdm           ),
     .ctrl_i           ( streamer_ctrl  ),
     .flags_o          ( streamer_flags )
   );
 
+  // FIR controller and state-machine
   fir_ctrl #(
     .N_CORES   ( 2  ),
     .N_CONTEXT ( 2  ),
@@ -102,10 +103,9 @@ module fir_top
     .test_mode_i      ( test_mode_i    ),
     .evt_o            ( evt_o          ),
     .clear_o          ( clear          ),
-    .ctrl_streamer_o  ( streamer_ctrl  ),
-    .flags_streamer_i ( streamer_flags ),
-    .ctrl_engine_o    ( engine_ctrl    ),
-    .flags_engine_i   ( engine_flags   ),
+    .streamer_ctrl_o  ( streamer_ctrl  ),
+    .streamer_flags_i ( streamer_flags ),
+    .datapath_ctrl_o  ( datapath_ctrl  ),
     .periph           ( periph         )
   );
 
