@@ -2,7 +2,7 @@
  * fir_top_wrap.sv
  * Francesco Conti <fconti@iis.ee.ethz.ch>
  *
- * Copyright (C) 2017 ETH Zurich, University of Bologna
+ * Copyright (C) 2017-2023 ETH Zurich, University of Bologna
  * All rights reserved.
  */
 
@@ -44,7 +44,9 @@ module fir_top_wrap
   output logic       [ID-1:0]                   periph_r_id
 );
 
-  hwpe_stream_intf_tcdm tcdm[MP-1:0] (
+  hci_core_intf #(
+    .DW ( 32 )
+  ) tcdm[MP-1:0] (
     .clk ( clk_i )
   );
 

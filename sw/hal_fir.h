@@ -43,8 +43,8 @@
 #define FIR_ADDR_BASE 0x100000
 #define FIR_ADDR_SPACE 0x00000100
 
-#define HWPE_WRITE(value, offset) *(int *)(ARCHI_HWPE_ADDR_BASE + offset) = value
-#define HWPE_READ(offset) *(int *)(ARCHI_HWPE_ADDR_BASE + offset)
+#define HWPE_WRITE(value, offset) *(int *)(FIR_ADDR_BASE + offset) = value
+#define HWPE_READ(offset)         *(int *)(FIR_ADDR_BASE + offset)
 
 static inline void fir_x_addr_set(unsigned int value) {
   HWPE_WRITE(value, FIR_REG_X_ADDR);
@@ -65,7 +65,7 @@ static inline void fir_shift_length_set(
   unsigned int res = 0;
   res |= ((length & 0xffff) << 16) |
          ((shift  & 0x1f));
-  HWPE_WRITE(res, FIR_REG_SHIFT_LENGTH;
+  HWPE_WRITE(res, FIR_REG_SHIFT_LENGTH);
 }
 
 static inline void fir_trigger_job() {

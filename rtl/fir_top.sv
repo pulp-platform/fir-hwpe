@@ -38,9 +38,10 @@ module fir_top
 );
 
   logic enable, clear;
-  fir_streamer_ctrl_t streamer_ctrl;
-  fir_streamer_ctrl_t streamer_flags;
-  fir_datapath_ctrl_t datapath_ctrl;
+  fir_streamer_ctrl_t    streamer_ctrl;
+  fir_streamer_flags_t   streamer_flags;
+  fir_datapath_ctrl_t    datapath_ctrl;
+  fir_tap_buffer_flags_t tap_buffer_flags;
 
   // Interface declarations
   hwpe_stream_intf_stream #( .DATA_WIDTH( DATA_WIDTH ) ) x_stream ( .clk ( clk_i ) );
@@ -53,11 +54,12 @@ module fir_top
     .DATA_WIDTH ( DATA_WIDTH ),
     .NB_TAPS    ( NB_TAPS    )
   ) i_tap_buffer (
-    .clk_i      ( clk_i           ),
-    .rst_ni     ( rst_ni          ),
-    .clear_i    ( clear           ),
-    .h_serial   ( h_stream        ),
-    .h_parallel ( h_buffer_stream )
+    .clk_i      ( clk_i            ),
+    .rst_ni     ( rst_ni           ),
+    .clear_i    ( clear            ),
+    .h_serial   ( h_stream         ),
+    .h_parallel ( h_buffer_stream  ),
+    .flags_o    ( tap_buffer_flags )
   );
 
   // FIR datapath
@@ -95,18 +97,18 @@ module fir_top
   fir_ctrl #(
     .N_CORES   ( 2  ),
     .N_CONTEXT ( 2  ),
-    .N_IO_REGS ( 16 ),
     .ID ( ID )
   ) i_ctrl (
-    .clk_i            ( clk_i          ),
-    .rst_ni           ( rst_ni         ),
-    .test_mode_i      ( test_mode_i    ),
-    .evt_o            ( evt_o          ),
-    .clear_o          ( clear          ),
-    .streamer_ctrl_o  ( streamer_ctrl  ),
-    .streamer_flags_i ( streamer_flags ),
-    .datapath_ctrl_o  ( datapath_ctrl  ),
-    .periph           ( periph         )
+    .clk_i              ( clk_i            ),
+    .rst_ni             ( rst_ni           ),
+    .test_mode_i        ( test_mode_i      ),
+    .evt_o              ( evt_o            ),
+    .clear_o            ( clear            ),
+    .streamer_ctrl_o    ( streamer_ctrl    ),
+    .streamer_flags_i   ( streamer_flags   ),
+    .datapath_ctrl_o    ( datapath_ctrl    ),
+    .tap_buffer_flags_i ( tap_buffer_flags ),
+    .periph             ( periph           )
   );
 
   assign enable = 1'b1;

@@ -30,8 +30,7 @@ module fir_tap_buffer
   hwpe_stream_intf_stream.sink   h_serial,
   // output y stream
   hwpe_stream_intf_stream.source h_parallel,
-  fir_tap_buffer_ctrl_t          ctrl_i,
-  fir_tap_buffer_flags_t         flags_o
+  output fir_tap_buffer_flags_t  flags_o
 );
 
   // Unrolled HWPE-Stream signals

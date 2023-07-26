@@ -7,6 +7,7 @@ dependencies:
   hwpe-stream: { path: "deps/hwpe-stream" }
   hwpe-ctrl:   { path: "deps/hwpe-ctrl" }
   hci:         { path: "deps/hci" }
+  zeroriscy:   { git: "git@github.com:yvantor/ibex.git", rev: "bender", target: "test" }
 
 sources:
   - include_dirs:
@@ -31,3 +32,5 @@ sources:
         files:
           - rtl/verif/tb_fir_datapath.sv
           - rtl/verif/tb_fir_buffer_datapath.sv
+          - rtl/verif/tb_dummy_memory.sv
+          - rtl/verif/tb_fir_top.sv

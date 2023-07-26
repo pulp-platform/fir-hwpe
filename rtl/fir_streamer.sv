@@ -39,7 +39,7 @@ module fir_streamer
   hwpe_stream_intf_stream.sink   y_i,
 
   // TCDM ports
-  hwpe_stream_intf_tcdm.master tcdm [MP-1:0],
+  hci_core_intf.master           tcdm [MP-1:0],
 
   // control channel
   input  fir_streamer_ctrl_t  ctrl_i,
@@ -56,7 +56,7 @@ module fir_streamer
   hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) x_prefifo  ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) h_prefifo  ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) y_postfifo ( .clk ( clk_i ) );
-  hwpe_stream_intf_tcdm tcdm_fifo [MP-1:0] ( .clk ( clk_i ) );
+  hci_core_intf #( .DW ( MEM_WIDTH) ) tcdm_fifo [MP-1:0] ( .clk ( clk_i ) );
 
   // Source and sink modules are used as interfaces between memory protocols
   // (in this case, HCI) and streaming protocols used inside the datapath in
@@ -107,7 +107,7 @@ module fir_streamer
     .clear_i     ( clear_i                ),
     .enable_i    ( enable_i               ),
     .tcdm        ( tcdm_fifo[Y_STREAM_IDX]),
-    .stream      ( y_postfifo             ),
+    .stream      ( y_mem                  ),
     .ctrl_i      ( ctrl_i.y_sink_ctrl     ),
     .flags_o     ( flags_o.y_sink_flags   )
   );
@@ -220,7 +220,7 @@ module fir_streamer
   // y merge
   hwpe_stream_merge #(
     .NB_IN_STREAMS ( MEM_WIDTH/DATA_WIDTH ),
-    .DATA_WIDTH    ( DATA_WIDTH           )
+    .DATA_WIDTH_IN ( DATA_WIDTH           )
   ) i_y_merge (
     .clk_i       ( clk_i   ),
     .rst_ni      ( rst_ni  ),

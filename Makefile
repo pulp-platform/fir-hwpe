@@ -17,7 +17,7 @@
 #         Francesco Conti (f.conti@unibo.it)
 #
 
-# valid alternatives are: tb_fir_datapath, tb_fir_buffer_datapath
+# valid alternatives are: tb_fir_datapath, tb_fir_buffer_datapath, tb_fir_top
 TESTBENCH ?= tb_fir_datapath
 
 # Paths to folders
@@ -53,27 +53,32 @@ $(BUILD_DIR):
 SHELL := /bin/bash
 
 # Generate instructions and data stimuli
-# Run the simulation
-run:
-ifeq ($(gui), 0)
-	cd $(BUILD_DIR);                       \
-	$(QUESTA) vsim -c vopt_tb -do "run -a" \
-	-gPROB_STALL_GEN=$(P_STALL_GEN)        \
-	-gPROB_STALL_RECV=$(P_STALL_RECV)      \
-	-gSTIM_FILE_X=$(STIM_FILE_X)           \
-	-gSTIM_FILE_H=$(STIM_FILE_H)           \
-	-gSTIM_FILE_Y=$(STIM_FILE_Y)           \
-	-gRESERVOIR_SIZE=$(RESERVOIR_SIZE)
-else
-	cd sim; $(QUESTA) vsim vopt_tb          \
-	-do "add log -r sim:/$(TESTBENCH)/*" \
-	-do "source $(WAVES)"                   \
-	-gPROB_STALL_GEN=$(P_STALL_GEN)         \
+include sw/sw.mk
+
+# Simulation parameters
+ifneq ($(TESTBENCH), tb_fir_top)
+VSIM_PARAMS=-gPROB_STALL_GEN=$(P_STALL_GEN) \
 	-gPROB_STALL_RECV=$(P_STALL_RECV)       \
 	-gSTIM_FILE_X=$(STIM_FILE_X)            \
 	-gSTIM_FILE_H=$(STIM_FILE_H)            \
 	-gSTIM_FILE_Y=$(STIM_FILE_Y)            \
 	-gRESERVOIR_SIZE=$(RESERVOIR_SIZE)
+else
+VSIM_PARAMS=-gPROB_STALL=$(P_STALL_GEN) \
+	-gSTIM_INSTR=stim_instr.txt         \
+	-gSTIM_DATA=stim_data.txt
+endif
+
+# Run the simulation
+run:
+ifeq ($(gui), 0)
+	cd $(BUILD_DIR);                       \
+	$(QUESTA) vsim -c vopt_tb -do "run -a" \
+	$(VSIM_PARAMS)	
+else
+	cd sim; $(QUESTA) vsim vopt_tb       \
+	-do "add log -r sim:/$(TESTBENCH)/*" \
+	$(VSIM_PARAMS)
 endif
 
 # Download bender

@@ -36,7 +36,7 @@ int main() {
   int offload_id_tmp, offload_id;
 
   // acquire job 
-  while((offload_id_tmp = hwpe_acquire_job()) < 0);
+  while((offload_id_tmp = fir_acquire_job()) < 0);
   
   // job-dependent registers
   fir_x_addr_set((unsigned int) x_stim);
