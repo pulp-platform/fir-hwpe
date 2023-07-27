@@ -35,14 +35,14 @@ full_no_stall:
   stage: full
   script:
     - make update-ips
-    - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_full hw-all
+    - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_top hw-all
     - PATH=$PULP_RISCV_GCC_TOOLCHAIN:$PATH make sw-all
-    - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_full run
+    - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_top run
 
 full_stall_0.05:
   stage: full
   script:
     - make update-ips
-    - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_full hw-all
+    - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_top hw-all
     - PATH=$PULP_RISCV_GCC_TOOLCHAIN:$PATH make sw-all
-    - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_full run P_STALL_GEN=0.05
+    - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_top run P_STALL_GEN=0.05
