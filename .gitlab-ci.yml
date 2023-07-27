@@ -36,7 +36,7 @@ full_no_stall:
   script:
     - make update-ips
     - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_top hw-all
-    - PATH=/usr/pack/pulpsdk-1.0-kgf/artifactory/pulp-sdk-release/pkg/pulp_riscv_gcc/1.0.14:$PATH make sw-all
+    - PATH=/usr/pack/pulpsdk-1.0-kgf/artifactory/pulp-sdk-release/pkg/pulp_riscv_gcc/1.0.14/bin:$PATH make sw-all
     - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_top run
 
 full_stall_0.05:
@@ -44,5 +44,5 @@ full_stall_0.05:
   script:
     - make update-ips
     - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_top hw-all
-    - PATH=/usr/pack/pulpsdk-1.0-kgf/artifactory/pulp-sdk-release/pkg/pulp_riscv_gcc/1.0.14:$PATH make sw-all
+    - PATH=/usr/pack/pulpsdk-1.0-kgf/artifactory/pulp-sdk-release/pkg/pulp_riscv_gcc/1.0.14/bin:$PATH make sw-all
     - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_top run P_STALL_GEN=0.05
