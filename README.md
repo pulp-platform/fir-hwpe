@@ -46,9 +46,9 @@ make update-ips
 ### Building the RTL simulation infrastructure
 The simulation infrastructure can then be built for one of the three targets available, which need to be selected by means of the `TESTBENCH` environment variable:
 ```
-make hw-all TESTBENCH=tb_fir_datapath       # multiply-accumulate datapath only
-make hw-all TESTBENCH=tb_fir_full_datapath  # full datapath with tap buffer and multiply-accumulate
-make hw-all TESTBENCH=tb_fir_top            # full HWPE
+make hw-all TESTBENCH=tb_fir_datapath         # multiply-accumulate datapath only
+make hw-all TESTBENCH=tb_fir_buffer_datapath  # full datapath with tap buffer and multiply-accumulate
+make hw-all TESTBENCH=tb_fir_top              # full HWPE
 ```
 The default is `TESTBENCH=tb_fir_datapath`.
 These need to be performed with `vsim` in the path. In case a prefix must be added before the `vsim` commands (e.g., `questa-2022.1 vsim`), the `QUESTA` environment variable must be exported before the `make hw-all` command:
@@ -71,9 +71,9 @@ This will generate two stimuli file, `stim_instr.txt` and `stim_data.txt`, in th
 ### Running a test
 To run a test, one needs to issue the `run` command while keeping the `TESTBENCH` variable in the environment:
 ```
-make run TESTBENCH=tb_fir_datapath       # multiply-accumulate datapath only
-make run TESTBENCH=tb_fir_full_datapath  # full datapath with tap buffer and multiply-accumulate
-make run TESTBENCH=tb_fir_top            # full HWPE
+make run TESTBENCH=tb_fir_datapath         # multiply-accumulate datapath only
+make run TESTBENCH=tb_fir_buffer_datapath  # full datapath with tap buffer and multiply-accumulate
+make run TESTBENCH=tb_fir_top              # full HWPE
 ```
 Additional options can be specified:
 ```
