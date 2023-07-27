@@ -32,7 +32,7 @@ datapath_stall_0.05:
     - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_full_datapath run P_STALL_GEN=0.05 P_STALL_RECV=0.05
 
 full_no_stall:
-  stage: datapath
+  stage: full
   script:
     - make update-ips
     - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_full hw-all
@@ -40,7 +40,7 @@ full_no_stall:
     - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_full run
 
 full_stall_0.05:
-  stage: datapath
+  stage: full
   script:
     - make update-ips
     - QUESTA=questa-2022.3-bt make TESTBENCH=tb_fir_full hw-all
