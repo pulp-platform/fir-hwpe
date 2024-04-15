@@ -124,7 +124,9 @@ module fir_datapath
   //  - data extracted with a bit-slice or a part-select is unsigned by default, so it
   //    needs to be casted to signed
   //  - in any case, the operators are 16-bit, therefore the result of the multiplication
-  //    needs to be casted to 32-bit, which is done by multiplying by 32'sh1
+  //    needs to be casted to DATA_WIDTH (>16-bit). Here we assume that DATA_WIDTH<=64,
+  //    thus the simplest way to cast it up to the final size in a sign-preserving way
+  //    is to multiply the product by 64'sh1.
   for (genvar ii=0; ii<NB_TAPS; ii++) begin : product_gen
     assign prod_d[ii] = 64'sh1 * signed'(h_data[ii]) * signed'(x_delay_q[ii]);
   end
