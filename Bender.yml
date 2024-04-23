@@ -4,9 +4,9 @@ package:
     - "Francesco Conti <f.conti@unibo.it>"
 
 dependencies:
-  hwpe-stream:   { git: "git@github.com:pulp-platform/hwpe-stream.git", rev: "4d99d85664a2f818a2c3881b288e5b43659f56f3" }
+  hwpe-stream:   { git: "git@github.com:pulp-platform/hwpe-stream.git", version: 1.8.0 }
   hwpe-ctrl:   { git: "git@github.com:pulp-platform/hwpe-ctrl.git", rev: "877d676329785f7bba042402e0a6f329a387573d" }
-  hci: { git: "git@github.com:pulp-platform/hci.git", rev: "b2e6f391aa6c10c03f45b693d80a0aaddecf169b" }
+  hci: { git: "git@github.com:pulp-platform/hci.git", rev: "82dfd3ffe0c4d9ef77c9a6d4efbbb0411aa2662e" }
   zeroriscy:   { git: "git@github.com:yvantor/ibex.git", rev: "bender", target: "test" }
 
 sources:
