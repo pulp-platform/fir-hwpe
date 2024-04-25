@@ -76,11 +76,11 @@ run:
 ifeq ($(gui), 0)
 	cd sim;                                \
 	$(QUESTA) vsim -c vopt_tb -do "run -a" \
-	$(VSIM_PARAMS)	
+	$(VSIM_PARAMS) "+nowarnTRAN" "+nowarnTSCALE" "+nowarnTFMPC"	
 else
 	cd sim; $(QUESTA) vsim vopt_tb       \
 	-do "add log -r sim:/$(TESTBENCH)/*" \
-	$(VSIM_PARAMS)
+	$(VSIM_PARAMS) "+nowarnTRAN" "+nowarnTSCALE" "+nowarnTFMPC"
 endif
 
 # Download bender
