@@ -39,7 +39,7 @@ module fir_streamer
   hwpe_stream_intf_stream.sink   y_i,
 
   // TCDM ports
-  hci_core_intf.master           tcdm [MP-1:0],
+  hci_core_intf.initiator           tcdm [MP-1:0],
 
   // control channel
   input  fir_streamer_ctrl_t  ctrl_i,
@@ -71,7 +71,6 @@ module fir_streamer
   // a streaming protocol and a data-flow paradigm.
   // x source
   hci_core_source #(
-    .DATA_WIDTH          ( MEM_WIDTH ),
     .MISALIGNED_ACCESSES ( 0         )
   ) i_x_source (
     .clk_i              ( clk_i                  ),
@@ -86,7 +85,6 @@ module fir_streamer
   );
   // h source
   hci_core_source #(
-    .DATA_WIDTH          ( MEM_WIDTH ),
     .MISALIGNED_ACCESSES ( 0         )
   ) i_h_source (
     .clk_i              ( clk_i                  ),
@@ -101,7 +99,6 @@ module fir_streamer
   );
   // y sink
   hci_core_sink #(
-    .DATA_WIDTH          ( MEM_WIDTH ),
     .MISALIGNED_ACCESSES ( 0         )
   ) i_y_sink (
     .clk_i       ( clk_i                  ),
@@ -124,39 +121,36 @@ module fir_streamer
   // designed to maintain this desirable property on the memory side.
   // x fifo
   hci_core_fifo #(
-    .FIFO_DEPTH ( 2         ),
-    .DW         ( MEM_WIDTH )
+    .FIFO_DEPTH ( 2         )
   ) i_x_tcdm_fifo (
     .clk_i       ( clk_i                  ),
     .rst_ni      ( rst_ni                 ),
     .clear_i     ( clear_i                ),
     .flags_o     (                        ),
-    .tcdm_slave  ( tcdm_fifo[X_STREAM_IDX]),
-    .tcdm_master ( tcdm[X_STREAM_IDX]     )
+    .tcdm_target  ( tcdm_fifo[X_STREAM_IDX]),
+    .tcdm_initiator ( tcdm[X_STREAM_IDX]     )
   );
   // h fifo
   hci_core_fifo #(
-    .FIFO_DEPTH ( 2         ),
-    .DW         ( MEM_WIDTH )
+    .FIFO_DEPTH ( 2         )
   ) i_h_tcdm_fifo (
     .clk_i       ( clk_i                  ),
     .rst_ni      ( rst_ni                 ),
     .clear_i     ( clear_i                ),
     .flags_o     (                        ),
-    .tcdm_slave  ( tcdm_fifo[H_STREAM_IDX]),
-    .tcdm_master ( tcdm[H_STREAM_IDX]     )
+    .tcdm_target  ( tcdm_fifo[H_STREAM_IDX]),
+    .tcdm_initiator ( tcdm[H_STREAM_IDX]     )
   );
   // y fifo
   hci_core_fifo #(
-    .FIFO_DEPTH ( 2         ),
-    .DW         ( MEM_WIDTH )
+    .FIFO_DEPTH ( 2         )
   ) i_y_tcdm_fifo (
     .clk_i       ( clk_i                  ),
     .rst_ni      ( rst_ni                 ),
     .clear_i     ( clear_i                ),
     .flags_o     (                        ),
-    .tcdm_slave  ( tcdm_fifo[Y_STREAM_IDX]),
-    .tcdm_master ( tcdm[Y_STREAM_IDX]     )
+    .tcdm_target  ( tcdm_fifo[Y_STREAM_IDX]),
+    .tcdm_initiator ( tcdm[Y_STREAM_IDX]     )
   );
 
   // As the memory and datapath sides use different data sizes, we need
