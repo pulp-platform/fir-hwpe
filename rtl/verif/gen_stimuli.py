@@ -49,7 +49,7 @@ def stimuli_tensor2string(
 
 # Use firwin to create a lowpass FIR filter with Blackman window.
 taps = np.zeros(Ntaps, np.float32)
-taps = scipy.signal.firwin(N, cutoff/nyquist_rate, window=('blackman'))
+taps = scipy.signal.firwin(Ntaps, cutoff/nyquist_rate, window=('blackman'))
 
 # example signal
 t = arange(samples) / sample_rate

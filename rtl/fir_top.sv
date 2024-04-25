@@ -32,7 +32,7 @@ module fir_top
   // events
   output logic [N_CORES-1:0][REGFILE_N_EVT-1:0] evt_o,
   // tcdm master ports
-  hci_core_intf.master                          tcdm[MP-1:0],
+  hci_core_intf.initiator                          tcdm[MP-1:0],
   // periph slave port
   hwpe_ctrl_intf_periph.slave                   periph
 );
