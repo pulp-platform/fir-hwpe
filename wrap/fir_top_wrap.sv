@@ -46,7 +46,7 @@ module fir_top_wrap
 
   hci_core_intf #(
     .DW ( 32 )
-  ) tcdm[MP-1:0] (
+  ) tcdm[0:MP-1] (
     .clk ( clk_i )
   );
 

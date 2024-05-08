@@ -39,12 +39,20 @@ module fir_streamer
   hwpe_stream_intf_stream.sink   y_i,
 
   // TCDM ports
-  hci_core_intf.initiator        tcdm [MP-1:0],
+  hci_core_intf.initiator        tcdm [0:MP-1],
 
   // control channel
   input  fir_streamer_ctrl_t     ctrl_i,
   output fir_streamer_flags_t    flags_o
 );
+
+  localparam int unsigned DW  = `HCI_SIZE_GET_DW(tcdm[0]);
+  localparam int unsigned AW  = `HCI_SIZE_GET_AW(tcdm[0]);
+  localparam int unsigned BW  = `HCI_SIZE_GET_BW(tcdm[0]);
+  localparam int unsigned UW  = `HCI_SIZE_GET_UW(tcdm[0]);
+  localparam int unsigned IW  = `HCI_SIZE_GET_IW(tcdm[0]);
+  localparam int unsigned EW  = `HCI_SIZE_GET_EW(tcdm[0]);
+  localparam int unsigned EHW = `HCI_SIZE_GET_EHW(tcdm[0]);
 
   // Interface declarations
   hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) x_mem ( .clk ( clk_i ) );
@@ -59,7 +67,18 @@ module fir_streamer
   hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) x_prefifo  ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) h_prefifo  ( .clk ( clk_i ) );
   hwpe_stream_intf_stream #( .DATA_WIDTH ( DATA_WIDTH ) ) y_postfifo ( .clk ( clk_i ) );
-  hci_core_intf #( .DW ( MEM_WIDTH) ) tcdm_fifo [MP-1:0] ( .clk ( clk_i ) );
+
+  hci_core_intf #( 
+    .DW  ( DW  ),
+    .AW  ( AW  ),
+    .BW  ( BW  ),
+    .UW  ( UW  ),
+    .IW  ( IW  ),
+    .EW  ( EW  ),
+    .EHW ( EHW )
+  ) tcdm_fifo [0:MP-1] (
+    .clk ( clk_i )
+  );
 
   // Source and sink modules are used as interfaces between memory protocols
   // (in this case, HCI) and streaming protocols used inside the datapath in
@@ -316,5 +335,12 @@ module fir_streamer
     .pop_o     ( y_postfifo ),
     .flags_o   (            )
   );
+  
+`ifndef SYNTHESIS
+`ifndef VERILATOR
+  initial
+    dw : assert(tcdm[0].DW == MEM_WIDTH);
+`endif
+`endif
 
 endmodule // fir_streamer

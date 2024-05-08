@@ -31,8 +31,8 @@ module fir_top
   input  logic                                  test_mode_i,
   // events
   output logic [N_CORES-1:0][REGFILE_N_EVT-1:0] evt_o,
-  // tcdm master ports
-  hci_core_intf.initiator                          tcdm[MP-1:0],
+  // tcdm initiator ports
+  hci_core_intf.initiator                       tcdm[0:MP-1],
   // periph slave port
   hwpe_ctrl_intf_periph.slave                   periph
 );
