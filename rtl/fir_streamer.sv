@@ -16,6 +16,8 @@
 import fir_package::*;
 import hwpe_stream_package::*;
 
+`include "hci_helpers.svh"
+
 module fir_streamer
 #(
   parameter int unsigned MEM_WIDTH  = 32, // data width of the TCDM interface (32 bits)
