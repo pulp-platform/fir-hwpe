@@ -6,10 +6,12 @@
  * All rights reserved.
  */
 
-import fir_package::*;
-import hwpe_ctrl_package::*;
+`include "hci_helpers.svh"
 
 module fir_top_wrap
+  import fir_package::*;
+  import hwpe_ctrl_package::*;
+  import hci_package::*;
 #(
   parameter N_CORES = 2,
   parameter MP  = 4,
@@ -44,11 +46,16 @@ module fir_top_wrap
   output logic       [ID-1:0]                   periph_r_id
 );
 
-  hci_core_intf #(
-    .DW ( 32 )
-  ) tcdm[0:MP-1] (
-    .clk ( clk_i )
-  );
+  localparam hci_size_parameter_t `HCI_SIZE_PARAM(tcdm) = '{
+    DW:  32,
+    AW:  DEFAULT_AW,
+    BW:  DEFAULT_BW,
+    UW:  DEFAULT_UW,
+    IW:  DEFAULT_IW,
+    EW:  DEFAULT_EW,
+    EHW: DEFAULT_EHW
+  };
+  `HCI_INTF_ARRAY(tcdm, clk_i, 0:MP-1);
 
   hwpe_ctrl_intf_periph #(
     .ID_WIDTH ( ID )
@@ -84,9 +91,10 @@ module fir_top_wrap
   end
 
   fir_top #(
-    .N_CORES ( N_CORES ),
-    .MP      ( MP      ),
-    .ID      ( ID      )
+    .N_CORES               ( N_CORES               ),
+    .MP                    ( MP                    ),
+    .ID                    ( ID                    ),
+    .`HCI_SIZE_PARAM(tcdm) ( `HCI_SIZE_PARAM(tcdm) )
   ) i_fir_top (
     .clk_i       ( clk_i       ),
     .rst_ni      ( rst_ni      ),

@@ -13,6 +13,8 @@
  * specific language governing permissions and limitations under the License.
  */
 
+`include "hci_helpers.svh"
+
 module fir_top
   import fir_package::*;
   import hwpe_ctrl_package::*;
@@ -22,7 +24,8 @@ module fir_top
   parameter int unsigned MP  = 3,
   parameter int unsigned ID  = 10,
   parameter int unsigned DATA_WIDTH = 16,
-  parameter int unsigned NB_TAPS = 50
+  parameter int unsigned NB_TAPS = 50,
+  parameter hci_size_parameter_t `HCI_SIZE_PARAM(tcdm) = '0
 )
 (
   // global signals
@@ -78,7 +81,8 @@ module fir_top
 
   // FIR streamer (load/store units)
   fir_streamer #(
-    .MP ( MP )
+    .MP                    ( MP                    ),
+    .`HCI_SIZE_PARAM(tcdm) ( `HCI_SIZE_PARAM(tcdm) )
   ) i_streamer (
     .clk_i            ( clk_i          ),
     .rst_ni           ( rst_ni         ),

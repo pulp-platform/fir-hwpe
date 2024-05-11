@@ -13,16 +13,17 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import fir_package::*;
-import hwpe_stream_package::*;
-
 `include "hci_helpers.svh"
 
 module fir_streamer
+  import fir_package::*;
+  import hwpe_stream_package::*;
+  import hci_package::*;
 #(
   parameter int unsigned MEM_WIDTH  = 32, // data width of the TCDM interface (32 bits)
   parameter int unsigned DATA_WIDTH = 16, // data width of the streams (16 bits)
-  parameter int unsigned MP = 3           // number of master ports
+  parameter int unsigned MP = 3,          // number of master ports
+  parameter hci_size_parameter_t `HCI_SIZE_PARAM(tcdm) = '0
 )
 (
   // global signals
@@ -48,13 +49,13 @@ module fir_streamer
   output fir_streamer_flags_t    flags_o
 );
 
-  localparam int unsigned DW  = `HCI_SIZE_GET_DW(tcdm[0]);
-  localparam int unsigned AW  = `HCI_SIZE_GET_AW(tcdm[0]);
-  localparam int unsigned BW  = `HCI_SIZE_GET_BW(tcdm[0]);
-  localparam int unsigned UW  = `HCI_SIZE_GET_UW(tcdm[0]);
-  localparam int unsigned IW  = `HCI_SIZE_GET_IW(tcdm[0]);
-  localparam int unsigned EW  = `HCI_SIZE_GET_EW(tcdm[0]);
-  localparam int unsigned EHW = `HCI_SIZE_GET_EHW(tcdm[0]);
+  localparam int unsigned DW  = `HCI_SIZE_GET_DW(tcdm);
+  localparam int unsigned AW  = `HCI_SIZE_GET_AW(tcdm);
+  localparam int unsigned BW  = `HCI_SIZE_GET_BW(tcdm);
+  localparam int unsigned UW  = `HCI_SIZE_GET_UW(tcdm);
+  localparam int unsigned IW  = `HCI_SIZE_GET_IW(tcdm);
+  localparam int unsigned EW  = `HCI_SIZE_GET_EW(tcdm);
+  localparam int unsigned EHW = `HCI_SIZE_GET_EHW(tcdm);
 
   // Interface declarations
   hwpe_stream_intf_stream #( .DATA_WIDTH ( MEM_WIDTH ) ) x_mem ( .clk ( clk_i ) );
@@ -92,7 +93,8 @@ module fir_streamer
   // a streaming protocol and a data-flow paradigm.
   // x source
   hci_core_source #(
-    .MISALIGNED_ACCESSES( 0                      )
+    .MISALIGNED_ACCESSES   ( 0                     ),
+    .`HCI_SIZE_PARAM(tcdm) ( `HCI_SIZE_PARAM(tcdm) )
   ) i_x_source          (
     .clk_i              ( clk_i                  ),
     .rst_ni             ( rst_ni                 ),
@@ -106,7 +108,8 @@ module fir_streamer
   );
   // h source
   hci_core_source #(
-    .MISALIGNED_ACCESSES( 0                      )
+    .MISALIGNED_ACCESSES   ( 0                     ),
+    .`HCI_SIZE_PARAM(tcdm) ( `HCI_SIZE_PARAM(tcdm) )
   ) i_h_source          (
     .clk_i              ( clk_i                  ),
     .rst_ni             ( rst_ni                 ),
@@ -120,7 +123,8 @@ module fir_streamer
   );
   // y sink
   hci_core_sink #(
-    .MISALIGNED_ACCESSES( 0                      )
+    .MISALIGNED_ACCESSES   ( 0                     ),
+    .`HCI_SIZE_PARAM(tcdm) ( `HCI_SIZE_PARAM(tcdm) )
   ) i_y_sink            (
     .clk_i              ( clk_i                  ),
     .rst_ni             ( rst_ni                 ),
@@ -142,7 +146,8 @@ module fir_streamer
   // designed to maintain this desirable property on the memory side.
   // x fifo
   hci_core_fifo #(
-    .FIFO_DEPTH     ( 2                      )
+    .FIFO_DEPTH                      ( 2                     ),
+    .`HCI_SIZE_PARAM(tcdm_initiator) ( `HCI_SIZE_PARAM(tcdm) )
   ) i_x_tcdm_fifo   (
     .clk_i          ( clk_i                  ),
     .rst_ni         ( rst_ni                 ),
@@ -153,7 +158,8 @@ module fir_streamer
   );
   // h fifo
   hci_core_fifo #(
-    .FIFO_DEPTH     ( 2                      )
+    .FIFO_DEPTH                      ( 2                     ),
+    .`HCI_SIZE_PARAM(tcdm_initiator) ( `HCI_SIZE_PARAM(tcdm) )
   ) i_h_tcdm_fifo   (
     .clk_i          ( clk_i                  ),
     .rst_ni         ( rst_ni                 ),
@@ -164,7 +170,8 @@ module fir_streamer
   );
   // y fifo
   hci_core_fifo #(
-    .FIFO_DEPTH     ( 2                      )
+    .FIFO_DEPTH                      ( 2                     ),
+    .`HCI_SIZE_PARAM(tcdm_initiator) ( `HCI_SIZE_PARAM(tcdm) )
   ) i_y_tcdm_fifo   (
     .clk_i          ( clk_i                  ),
     .rst_ni         ( rst_ni                 ),
