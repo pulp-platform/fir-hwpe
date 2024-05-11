@@ -51,7 +51,7 @@ module fir_datapath
 
   // Unrolled HWPE-Stream signals
   logic signed [DATA_WIDTH-1:0] x_data,      y_data;
-  logic                         x_valid,     y_valid;
+  logic                         x_valid,     y_valid_d;
   logic                         x_ready,     y_ready;
   logic                         x_handshake, y_handshake;
   logic signed [NB_TAPS-1:0][DATA_WIDTH-1:0] h_data;
@@ -64,6 +64,10 @@ module fir_datapath
   // FIR products
   logic signed [NB_TAPS-1:0][DATA_WIDTH*2-1:0]    prod_d;
   logic signed [DATA_WIDTH*2+$clog2(NB_TAPS)-1:0] y_nonshifted_d;
+
+  // Pipeline stage (with backwards retiming in FPGA;
+  `ifdef TARGET_FPGA (* retiming_backward = 1 *) `endif logic signed [DATA_WIDTH*2+$clog2(NB_TAPS)-1:0] y_nonshifted_q;
+  `ifdef TARGET_FPGA (* retiming_backward = 1 *) `endif logic y_valid_q;
 
   // Unroll all HWPE-Stream sink modports into `logic` bit vectors for convenience.
   // Notice that for simple combinational logic we tend to prefer `assign` to `always_comb`.
@@ -150,21 +154,67 @@ module fir_datapath
     end
   end
 
+  // We introduce a pipeline stage here, governed by the y_valid_d/y_ready handshake, 
+  // because in synthesis (particularly on FPGA) the previous chain of additions 
+  // constitutes a potentially very long combinational path.
+  // The y_non_shifted_q can be pushed backwards by path retiming, shortening this
+  // critical path at the cost of additional register resources.
+  always_ff @(posedge clk_i or negedge rst_ni)
+  begin
+    if(~rst_ni) begin
+      y_nonshifted_q <= '0;
+    end
+    else if(clear_i) begin
+      y_nonshifted_q <= '0;
+    end
+    else if(y_valid_d & y_ready) begin
+      y_nonshifted_q <= y_nonshifted_d;
+    end
+  end
+  always_ff @(posedge clk_i or negedge rst_ni)
+  begin
+    if(~rst_ni) begin
+      y_valid_q <= '0;
+    end
+    else if(clear_i) begin
+      y_valid_q <= '0;
+    end
+    else if (y_ready) begin
+      y_valid_q <= y_valid_d;
+    end
+  end
+  always_comb
+  begin
+    y_valid_d = 1'b0;
+    // currently valid out at consumer side
+    if(y_valid_q) begin 
+      // consumer gets a new one output or keeps the current one
+      if(x_valid & h_valid) begin
+        y_valid_d = 1'b1;
+      end
+    end
+    else begin
+      // consumer gets a new output
+      if(x_valid & h_valid) begin
+        y_valid_d = 1'b1;
+      end
+    end
+  end
+
   // Right-shift y so that it is aligned to the original data width.
   // Notice the usage of the `>>>` operator, which is a logical shift (i.e., it preservs sign)
   // and of the `signed` cast operator.
-  assign y_data  = signed'(y_nonshifted_d) >>> ctrl_i.right_shift;
-  assign y_valid = x_valid & h_valid;
+  assign y_data  = signed'(y_nonshifted_q) >>> ctrl_i.right_shift;
   
   // Unroll the HWPE-Stream source modports into `logic` bit vectors for convenience.
   // y in --> out
   assign y.data  = y_data;
   assign y.strb  = '1;
-  assign y.valid = y_valid;
+  assign y.valid = y_valid_q;
   // y out --> in
   assign y_ready = y.ready;
   // y handshake
-  assign y_handshake = y_valid & y_ready;
+  assign y_handshake = y_valid_q & y_ready;
 
   // How to assign `ready` signals? This is often more challenging then `valid`s.
   // To avoid deadlocks, in HWPE-Streams the following rules have to be followed:
