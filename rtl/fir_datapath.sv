@@ -135,24 +135,52 @@ module fir_datapath
     assign prod_d[ii] = 64'sh1 * signed'(h_data[ii]) * signed'(x_delay_q[ii]);
   end
 
-  // The sum of all products is computed as a chain of additions. In this case, we preferred
-  // a more behavioral style: we leave to the synthesis tool the task of inferring the appropriate
-  // adder tree architecture.
-  // In simulation, the value of `y_nonshifted_d` will vary `NB_TAPS` times in as many delta cycles
-  // when the `always_comb` block is woken-up by a change in one of the `prod_d` values.
-  // In synthesis, the starting implementation will be a chain of adders, but the synthesis tool
-  // will likely replace this with a more efficient adder tree early in the synthesis.
-  // This kind of transformations can happen with any coding style (RTL or behavioral), but here
-  // we prefer to *emphasize* the fact that we are not interested in the specific implementation.
-  // In many HWPEs, we follow a consistent style: we use single-letter index variables (`i`) for
-  // these behavioral loops, and multi-letter index variables (`ii`) for generate-loops.
-  always_comb
-  begin 
-    y_nonshifted_d = 64'sh0 + signed'(prod_d[0]);
-    for (int i=1; i<NB_TAPS; i++) begin
-      y_nonshifted_d += 64'sh0 + signed'(prod_d[i]);
+  // The sum of all products is computed as an explicit adder tree. While ASIC
+  // tools are generally capable of extracting a high quality tree out of
+  // behavioral chain-of-additions code such as the following example, FPGA ones
+  // sometimes do not.
+  //   always_comb
+  //   begin 
+  //     y_nonshifted_d = 64'sh0 + signed'(prod_d[0]);
+  //     for (int i=1; i<NB_TAPS; i++) begin
+  //       y_nonshifted_d += 64'sh0 + signed'(prod_d[i]);
+  //     end
+  //   end
+  // Here we explicitly define a number of levels depending on NB_TAPS and propagate
+  // addition through all layers of this binary tree.
+  generate
+    localparam int unsigned NB_LEVELS = $clog2(NB_TAPS);
+    logic signed [NB_LEVELS-1:0][2**NB_LEVELS-1:0][DATA_WIDTH*2+$clog2(NB_TAPS)-1:0] y_level;
+    // upper layer of adder tree
+    begin
+      localparam int unsigned ii = NB_LEVELS-1;
+      localparam int unsigned NB_ADDERS = NB_TAPS/2 + NB_TAPS%2;
+      for(genvar jj=0; jj<NB_TAPS/2; jj++) begin
+        assign y_level[ii][jj] = signed'(prod_d[2*jj]) + signed'(prod_d[2*jj+1]) + 64'sh0;
+      end
+      if(NB_ADDERS != NB_TAPS/2) begin
+        assign y_level[ii][NB_ADDERS-1] = signed'(prod_d[2*(NB_ADDERS-1)]);
+      end
+      // tie extra y_level (not really part of the tree)
+      for(genvar jj=NB_ADDERS; jj<2**NB_LEVELS; jj++) begin
+        assign y_level[ii][jj] = '0;
+      end
     end
-  end
+    // middle layers of adder tree
+    for(genvar ii_rev=1; ii_rev<NB_LEVELS; ii_rev++) begin
+      localparam int unsigned ii = NB_LEVELS-ii_rev-1;
+      localparam int unsigned NB_ADDERS = 2**ii;
+      for(genvar jj=0; jj<NB_ADDERS; jj++) begin
+        assign y_level[ii][jj] = y_level[ii+1][2*jj] + y_level[ii+1][2*jj+1] + 64'sh0;
+      end
+      // tie extra y_level (not really part of the tree)
+      for(genvar jj=NB_ADDERS; jj<2**NB_LEVELS; jj++) begin
+        assign y_level[ii][jj] = '0;
+      end
+    end
+  endgenerate
+  // root of adder tree
+  assign y_nonshifted_d = 64'sh0 + y_level[0][0];
 
   // We introduce a pipeline stage here, governed by the y_valid_d/y_ready handshake, 
   // because in synthesis (particularly on FPGA) the previous chain of additions 
