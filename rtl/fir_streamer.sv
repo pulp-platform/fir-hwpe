@@ -200,7 +200,7 @@ module fir_streamer
     hwpe_stream_fifo #(
       .FIFO_DEPTH   ( 2                      ),
       .DATA_WIDTH   ( DATA_WIDTH             )
-    ) i_h_split_fifo(
+    ) i_x_split_fifo(
       .clk_i        ( clk_i                  ),
       .rst_ni       ( rst_ni                 ),
       .clear_i      ( clear_i                ),

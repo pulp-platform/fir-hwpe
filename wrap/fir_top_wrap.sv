@@ -15,14 +15,20 @@ module fir_top_wrap
 #(
   parameter N_CORES = 2,
   parameter MP  = 4,
-  parameter ID  = 10
+  parameter ID  = 10,
+`ifndef SYNTHESIS
+  parameter bit WAIVE_RQ3_ASSERT  = 1'b0,
+  parameter bit WAIVE_RQ4_ASSERT  = 1'b0,
+  parameter bit WAIVE_RSP3_ASSERT = 1'b0,
+  parameter bit WAIVE_RSP5_ASSERT = 1'b0
+`endif
 )
 (
   // global signals
   input  logic                                  clk_i,
   input  logic                                  rst_ni,
   input  logic                                  test_mode_i,
-  // evnets
+  // events
   output logic [N_CORES-1:0][REGFILE_N_EVT-1:0] evt_o,
   // tcdm master ports
   output logic [MP-1:0]                         tcdm_req,
@@ -55,7 +61,23 @@ module fir_top_wrap
     EW:  DEFAULT_EW,
     EHW: DEFAULT_EHW
   };
-  `HCI_INTF_ARRAY(tcdm, clk_i, 0:MP-1);
+  hci_core_intf #(
+`ifndef SYNTHESIS
+    .WAIVE_RQ3_ASSERT  ( WAIVE_RQ3_ASSERT  ),
+    .WAIVE_RQ4_ASSERT  ( WAIVE_RQ4_ASSERT  ),
+    .WAIVE_RSP3_ASSERT ( WAIVE_RSP3_ASSERT ),
+    .WAIVE_RSP5_ASSERT ( WAIVE_RSP5_ASSERT ),
+`endif
+    .DW  ( 32          ),
+    .AW  ( DEFAULT_AW  ),
+    .BW  ( DEFAULT_BW  ),
+    .UW  ( DEFAULT_UW  ),
+    .IW  ( DEFAULT_IW  ),
+    .EW  ( DEFAULT_EW  ),
+    .EHW ( DEFAULT_EHW )
+  ) tcdm [0:MP-1] (
+    .clk ( clk_i )
+  );
 
   hwpe_ctrl_intf_periph #(
     .ID_WIDTH ( ID )
@@ -71,9 +93,14 @@ module fir_top_wrap
       assign tcdm_wen  [ii] = tcdm[ii].wen;
       assign tcdm_be   [ii] = tcdm[ii].be;
       assign tcdm_data [ii] = tcdm[ii].data;
-      assign tcdm[ii].gnt     = tcdm_gnt     [ii];
-      assign tcdm[ii].r_data  = tcdm_r_data  [ii];
-      assign tcdm[ii].r_valid = tcdm_r_valid [ii];
+      assign tcdm[ii].gnt      = tcdm_gnt     [ii];
+      assign tcdm[ii].r_data   = tcdm_r_data  [ii];
+      assign tcdm[ii].r_valid  = tcdm_r_valid [ii];
+      assign tcdm[ii].r_user   = '0;
+      assign tcdm[ii].r_ecc    = '0;
+      assign tcdm[ii].r_id     = '0;
+      assign tcdm[ii].r_opc    = '0;
+      assign tcdm[ii].r_evalid = '0;
     end
   endgenerate
   always_comb
