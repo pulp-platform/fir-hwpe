@@ -75,7 +75,7 @@ module fir_top_wrap
     .IW  ( DEFAULT_IW  ),
     .EW  ( DEFAULT_EW  ),
     .EHW ( DEFAULT_EHW )
-  ) tcdm [0:MP-1] (
+  ) tcdm [0:MP-2] (
     .clk ( clk_i )
   );
 
@@ -87,20 +87,37 @@ module fir_top_wrap
 
   // bindings
   generate
-    for(genvar ii=0; ii<MP; ii++) begin: tcdm_binding
-      assign tcdm_req  [ii] = tcdm[ii].req;
-      assign tcdm_add  [ii] = tcdm[ii].add;
-      assign tcdm_wen  [ii] = tcdm[ii].wen;
-      assign tcdm_be   [ii] = tcdm[ii].be;
-      assign tcdm_data [ii] = tcdm[ii].data;
-      assign tcdm[ii].gnt      = tcdm_gnt     [ii];
-      assign tcdm[ii].r_data   = tcdm_r_data  [ii];
-      assign tcdm[ii].r_valid  = tcdm_r_valid [ii];
-      assign tcdm[ii].r_user   = '0;
-      assign tcdm[ii].r_ecc    = '0;
-      assign tcdm[ii].r_id     = '0;
-      assign tcdm[ii].r_opc    = '0;
-      assign tcdm[ii].r_evalid = '0;
+    for(genvar ii=0; ii<MP-1; ii++) begin: tcdm_binding
+      if(ii<3) begin
+        assign tcdm_req  [ii] = tcdm[ii].req;
+        assign tcdm_add  [ii] = tcdm[ii].add;
+        assign tcdm_wen  [ii] = tcdm[ii].wen;
+        assign tcdm_be   [ii] = tcdm[ii].be;
+        assign tcdm_data [ii] = tcdm[ii].data;
+        assign tcdm[ii].gnt      = tcdm_gnt     [ii];
+        assign tcdm[ii].r_data   = tcdm_r_data  [ii];
+        assign tcdm[ii].r_valid  = tcdm_r_valid [ii];
+        assign tcdm[ii].r_user   = '0;
+        assign tcdm[ii].r_ecc    = '0;
+        assign tcdm[ii].r_id     = '0;
+        assign tcdm[ii].r_opc    = '0;
+        assign tcdm[ii].r_evalid = '0;
+      end
+      else begin
+        assign tcdm_req  [ii] = '0;
+        assign tcdm_add  [ii] = '0;
+        assign tcdm_wen  [ii] = '0;
+        assign tcdm_be   [ii] = '0;
+        assign tcdm_data [ii] = '0;
+        assign tcdm[ii].gnt      = '0;
+        assign tcdm[ii].r_data   = '0;
+        assign tcdm[ii].r_valid  = '0;
+        assign tcdm[ii].r_user   = '0;
+        assign tcdm[ii].r_ecc    = '0;
+        assign tcdm[ii].r_id     = '0;
+        assign tcdm[ii].r_opc    = '0;
+        assign tcdm[ii].r_evalid = '0;
+      end
     end
   endgenerate
   always_comb
@@ -119,7 +136,7 @@ module fir_top_wrap
 
   fir_top #(
     .N_CORES               ( N_CORES               ),
-    .MP                    ( MP                    ),
+    .MP                    ( 3                     ),
     .ID                    ( ID                    ),
     .`HCI_SIZE_PARAM(tcdm) ( `HCI_SIZE_PARAM(tcdm) )
   ) i_fir_top (
