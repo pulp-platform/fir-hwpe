@@ -13,15 +13,15 @@ module fir_top_wrap
   import hwpe_ctrl_package::*;
   import hci_package::*;
 #(
-  parameter N_CORES = 2,
-  parameter MP  = 4,
-  parameter ID  = 10,
 `ifndef SYNTHESIS
   parameter bit WAIVE_RQ3_ASSERT  = 1'b0,
   parameter bit WAIVE_RQ4_ASSERT  = 1'b0,
   parameter bit WAIVE_RSP3_ASSERT = 1'b0,
-  parameter bit WAIVE_RSP5_ASSERT = 1'b0
+  parameter bit WAIVE_RSP5_ASSERT = 1'b0,
 `endif
+  parameter N_CORES = 2,
+  parameter MP  = 4,
+  parameter ID  = 10
 )
 (
   // global signals
