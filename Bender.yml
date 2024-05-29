@@ -27,10 +27,10 @@ sources:
       # Level 3
       - rtl/fir_top.sv
       # Level 4
-      - wrap/fir_top_wrap.sv
+      - rtl/fir_top_wrap.sv
       - target: test
         files:
-          - rtl/verif/tb_fir_datapath.sv
-          - rtl/verif/tb_fir_buffer_datapath.sv
-          - rtl/verif/tb_dummy_memory.sv
-          - rtl/verif/tb_fir_top.sv
+          - tb/tb_fir_datapath.sv
+          - tb/tb_fir_buffer_datapath.sv
+          - tb/tb_dummy_memory.sv
+          - tb/tb_fir_top.sv

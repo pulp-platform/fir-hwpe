@@ -32,9 +32,9 @@ compile_script ?= compile.tcl
 compile_flag   ?= -suppress 2583 -suppress 13314
 
 WORK_PATH = $(BUILD_DIR)
-STIM_FILE_X = ../rtl/verif/x_stim.txt 
-STIM_FILE_H = ../rtl/verif/h_stim.txt
-STIM_FILE_Y = ../rtl/verif/y_gold.txt 
+STIM_FILE_X = ../stimuli/x_stim.txt 
+STIM_FILE_H = ../stimuli/h_stim.txt
+STIM_FILE_Y = ../stimuli/y_gold.txt 
 RESERVOIR_SIZE = 1024
 
 # Useful Parameters

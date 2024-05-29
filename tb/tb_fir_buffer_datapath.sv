@@ -25,11 +25,11 @@ module tb_fir_buffer_datapath;
   parameter RESERVOIR_SIZE_X = 512;
   parameter RESERVOIR_SIZE_H = NB_TAPS;
   parameter RECEIVER_SIZE_Y  = 512;
-  parameter RIGHT_SHIFT = 17;
+  parameter RIGHT_SHIFT = 15;
   parameter STIM_FILE_X = "x_stim.txt";
   parameter STIM_FILE_H = "h_stim.txt";
   parameter STIM_FILE_Y = "y_gold.txt";
-  parameter DATA_WIDTH = 16;
+  parameter DATA_WIDTH = 14;
 
   // ATI timing parameters.
   localparam TCP = 1.0ns; // clock period, 1 GHz clock
