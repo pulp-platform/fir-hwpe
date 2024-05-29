@@ -165,9 +165,12 @@ module fir_ctrl
         end
       end
       FSM_COMPUTE: begin
-        if(streamer_flags_i.y_sink_flags.done) begin
-          state_d = FSM_IDLE;
-        end
+      //------------------------------------------ < TASK-30 > -------------------------------------------
+      // When the streamer is done writing the output(y) to the memory the state should be changed to the IDLE. 
+      // Hint: you can make use of the streamer_flags_i. Go through the fir_package.sv  for the correct signal. 
+
+      // Placeholder for your code
+
       end
     endcase
   end

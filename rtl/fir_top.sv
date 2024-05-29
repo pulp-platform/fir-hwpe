@@ -41,8 +41,12 @@ module fir_top
 );
 
   logic enable, clear;
-  fir_streamer_ctrl_t    streamer_ctrl;
-  fir_streamer_flags_t   streamer_flags;
+
+  //------------------------------------------ < TASK-28 > -------------------------------------------
+  // Declare appropriate signals for the ctrl and flags for the streamer. 
+  // Hint: Refer to the fir_package.sv for the appropriate datatype
+  // Refer to the block diagram in the task description for appropriate name of the signal
+
   fir_datapath_ctrl_t    datapath_ctrl;
   fir_tap_buffer_flags_t tap_buffer_flags;
 
@@ -60,8 +64,10 @@ module fir_top
     .clk_i      ( clk_i            ),
     .rst_ni     ( rst_ni           ),
     .clear_i    ( clear            ),
-    .h_serial   ( h_stream         ),
-    .h_parallel ( h_buffer_stream  ),
+    //------------------------------------------ < TASK-29 > -------------------------------------------
+    // Make approriate connections for h_serial and h_parallel
+    .h_serial   (                  ),
+    .h_parallel (                  ),
     .flags_o    ( tap_buffer_flags )
   );
 
@@ -74,9 +80,11 @@ module fir_top
     .rst_ni  ( rst_ni            ),
     .clear_i ( clear             ),
     .ctrl_i  ( datapath_ctrl     ),
-    .x       ( x_stream          ),
-    .h       ( h_buffer_stream   ),
-    .y       ( y_stream          )
+    //------------------------------------------ < TASK-29 > -------------------------------------------
+    // Make approriate connections for x, h and y
+    .x       (                   ),
+    .h       (                   ),
+    .y       (                   )
   );
 
   // FIR streamer (load/store units)
@@ -93,8 +101,10 @@ module fir_top
     .h_o              ( h_stream       ),
     .y_i              ( y_stream       ),
     .tcdm             ( tcdm           ),
-    .ctrl_i           ( streamer_ctrl  ),
-    .flags_o          ( streamer_flags )
+    //------------------------------------------ < TASK-28 > -------------------------------------------
+    // Make approriate connections for ctrl_i and flags_o
+    .ctrl_i           (                ),
+    .flags_o          (                )
   );
 
   // FIR controller and state-machine
@@ -108,8 +118,10 @@ module fir_top
     .test_mode_i        ( test_mode_i      ),
     .evt_o              ( evt_o            ),
     .clear_o            ( clear            ),
-    .streamer_ctrl_o    ( streamer_ctrl    ),
-    .streamer_flags_i   ( streamer_flags   ),
+  //------------------------------------------ < TASK-28 > -------------------------------------------
+  // Make approriate connections for streamer_ctrl_o and streamer_flags_i
+    .streamer_ctrl_o    (                  ),
+    .streamer_flags_i   (                  ),
     .datapath_ctrl_o    ( datapath_ctrl    ),
     .tap_buffer_flags_i ( tap_buffer_flags ),
     .periph             ( periph           )

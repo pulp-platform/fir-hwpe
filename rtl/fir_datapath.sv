@@ -59,7 +59,7 @@ module fir_datapath
   logic                                      h_ready;
   logic                                      h_handshake;
   // delayed inputs and valids
-  logic signed [NB_TAPS-1:0][DATA_WIDTH-1:0] x_delay_q;
+  logic signed [NB_TAPS-1:0][DATA_WIDTH-1:0] x_delay_data_q;
   logic        [NB_TAPS-1:0]                 x_delay_valid_q;
   // FIR products
   logic signed [NB_TAPS-1:0][DATA_WIDTH*2-1:0]    prod_d;
@@ -87,12 +87,6 @@ module fir_datapath
   assign h.ready = h_ready;
   // h handshake
   assign h_handshake = h_valid & h_ready;
-  
-  // The first delayed x is actually not delayed at all
-  assign x_delay_q[0]       = x_data;
-
-  // We consider the first delayed x valid if also the tap is valid
-  assign x_delay_valid_q[0] = x_valid & h_valid;
 
   // This chain of delayed x values implements a shift register enabled by the handshake x_valid & x_ready.
   // Note that we favor an implementation based on generate-loops of simple blocks (flip-flops) rather than
@@ -103,37 +97,37 @@ module fir_datapath
   // the shift register. We only need the actual `valid` for the last tap, so an alternative choice
   // would be to propagate only the data and use a separate counter for handshakes, activating the
   // "last `valid`" after `NB_TAPS-1` handshakes.
-  for (genvar ii=1; ii<NB_TAPS; ii++) begin : x_delay_gen
-    always_ff @(posedge clk_i or negedge rst_ni)
-    begin
-      if(~rst_ni) begin
-        x_delay_q[ii]       <= '0;
-        x_delay_valid_q[ii] <= '0;
-      end
-      else if(clear_i) begin
-        x_delay_q[ii]       <= '0;
-        x_delay_valid_q[ii] <= '0;
-      end
-      else if(x_handshake & h_handshake) begin
-        x_delay_q[ii]       <= x_delay_q[ii-1];
-        x_delay_valid_q[ii] <= x_delay_valid_q[ii-1];
+  for (genvar ii=0; ii<NB_TAPS; ii++) begin : x_delay_gen
+    if(ii==0) begin 
+      always_comb begin 
+        // The first delayed x is actually not delayed at all
+        x_delay_data_q[ii]  = x_data;
+        // We consider the first delayed x valid if also the tap is valid
+        x_delay_valid_q[ii] = x_valid & h_valid;
+      end 
+    end else begin 
+      always_ff @(posedge clk_i or negedge rst_ni)
+      begin
+      
+      //----------------------------------------- <Task 17>  -----------------------------------------
+      // Implement the shift register logic for x_delay_data_q and x_delay_valid_q
+      // Ensure to include the handshake signals for performing the shifting
+      // Also, account for the reset (rst_ni) and clear (clear_i) signals appropriately
+
+      // Placeholder for your code
+
       end
     end
   end
 
-  // The product between the delayed x and the h coefficients is computed in parallel.
-  // Taps arrive parallelly in `h_data`.
-  // We also use generate-loops here.
-  // Notice the usage of the `signed'` cast operator:
-  //  - data extracted with a bit-slice or a part-select is unsigned by default, so it
-  //    needs to be casted to signed
-  //  - in any case, the operators are 16-bit, therefore the result of the multiplication
-  //    needs to be casted to DATA_WIDTH (>16-bit). Here we assume that DATA_WIDTH<=64,
-  //    thus the simplest way to cast it up to the final size in a sign-preserving way
-  //    is to multiply the product by 64'sh1.
-  for (genvar ii=0; ii<NB_TAPS; ii++) begin : product_gen
-    assign prod_d[ii] = 64'sh1 * signed'(h_data[ii]) * signed'(x_delay_q[ii]);
-  end
+
+  //----------------------------------------- <Task 18>  -----------------------------------------
+  // Compute the elementwise product of h_data and x_delay_data_q in parallel.
+  // Ensure to typecast the result to the signed datatype with the desired data width.
+
+  // Placeholder for your code
+
+
 
   // The sum of all products is computed as an explicit adder tree. While ASIC
   // tools are generally capable of extracting a high quality tree out of
@@ -232,23 +226,8 @@ module fir_datapath
       y_valid_q <= y_valid_d;
     end
   end
-  always_comb
-  begin
-    y_valid_d = 1'b0;
-    // currently valid out at consumer side
-    if(y_valid_q) begin 
-      // consumer gets a new one output or keeps the current one
-      if(x_valid & h_valid) begin
-        y_valid_d = 1'b1;
-      end
-    end
-    else begin
-      // consumer gets a new output
-      if(x_valid & h_valid) begin
-        y_valid_d = 1'b1;
-      end
-    end
-  end
+
+  assign y_valid_d = x_valid & h_valid; // consumer gets a valid output when the x and h are valid 
 
   // Right-shift y so that it is aligned to the original data width.
   // Notice the usage of the `>>>` operator, which is a logical shift (i.e., it preservs sign)
