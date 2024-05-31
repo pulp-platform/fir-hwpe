@@ -170,6 +170,9 @@ module fir_ctrl
       // Hint: you can make use of the streamer_flags_i. Go through the fir_package.sv  for the correct signal. 
 
       // Placeholder for your code
+        if(streamer_flags_i.y_sink_flags.done) begin
+          state_d = FSM_IDLE;
+        end
 
       end
     endcase

@@ -116,6 +116,19 @@ module fir_datapath
 
       // Placeholder for your code
 
+      if(~rst_ni) begin
+        x_delay_data_q[ii]  <= '0;
+        x_delay_valid_q[ii] <= '0;
+      end
+      else if(clear_i) begin
+        x_delay_data_q[ii]  <= '0;
+        x_delay_valid_q[ii] <= '0;
+      end
+      else if(x_handshake & h_handshake) begin
+        x_delay_data_q[ii]  <= x_delay_data_q[ii-1];
+        x_delay_valid_q[ii] <= x_delay_valid_q[ii-1];
+      end
+
       end
     end
   end
@@ -126,6 +139,10 @@ module fir_datapath
   // Ensure to typecast the result to the signed datatype with the desired data width.
 
   // Placeholder for your code
+
+  for (genvar ii=0; ii<NB_TAPS; ii++) begin : product_gen
+    assign prod_d[ii] = 64'sh1 * signed'(h_data[ii]) * signed'(x_delay_data_q[ii]);
+  end
 
 
 

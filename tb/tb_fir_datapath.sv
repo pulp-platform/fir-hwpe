@@ -25,7 +25,7 @@ module tb_fir_datapath;
   parameter RESERVOIR_SIZE_X = 512;
   parameter RESERVOIR_SIZE_H = NB_TAPS;
   parameter RECEIVER_SIZE_Y  = 512;
-  parameter RIGHT_SHIFT = 16;
+  parameter RIGHT_SHIFT = 15;
   parameter STIM_FILE_X = "x_stim.txt";
   parameter STIM_FILE_H = "h_stim.txt";
   parameter STIM_FILE_Y = "y_gold.txt";

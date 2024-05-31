@@ -42,7 +42,7 @@ int main() {
   fir_x_addr_set((unsigned int) x_stim);
   fir_h_addr_set((unsigned int) h_stim);
   fir_y_addr_set((unsigned int) y_actual);
-  fir_shift_length_set(16, 512); // right_shift, length
+  fir_shift_length_set(15, 512); // right_shift, length
 
   // start hwpe operation
   fir_trigger_job();

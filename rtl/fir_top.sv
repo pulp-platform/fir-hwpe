@@ -47,6 +47,9 @@ module fir_top
   // Hint: Refer to the fir_package.sv for the appropriate datatype
   // Refer to the block diagram in the task description for appropriate name of the signal
 
+  fir_streamer_ctrl_t    streamer_ctrl;
+  fir_streamer_flags_t   streamer_flags;
+
   fir_datapath_ctrl_t    datapath_ctrl;
   fir_tap_buffer_flags_t tap_buffer_flags;
 
@@ -66,8 +69,8 @@ module fir_top
     .clear_i    ( clear            ),
     //------------------------------------------ < TASK-29 > -------------------------------------------
     // Make approriate connections for h_serial and h_parallel
-    .h_serial   (                  ),
-    .h_parallel (                  ),
+    .h_serial   ( h_stream         ),
+    .h_parallel ( h_buffer_stream  ),
     .flags_o    ( tap_buffer_flags )
   );
 
@@ -82,9 +85,9 @@ module fir_top
     .ctrl_i  ( datapath_ctrl     ),
     //------------------------------------------ < TASK-29 > -------------------------------------------
     // Make approriate connections for x, h and y
-    .x       (                   ),
-    .h       (                   ),
-    .y       (                   )
+    .x       ( x_stream          ),
+    .h       ( h_buffer_stream   ),
+    .y       ( y_stream          )
   );
 
   // FIR streamer (load/store units)
@@ -103,8 +106,8 @@ module fir_top
     .tcdm             ( tcdm           ),
     //------------------------------------------ < TASK-28 > -------------------------------------------
     // Make approriate connections for ctrl_i and flags_o
-    .ctrl_i           (                ),
-    .flags_o          (                )
+    .ctrl_i           ( streamer_ctrl  ),
+    .flags_o          ( streamer_flags )
   );
 
   // FIR controller and state-machine
@@ -120,8 +123,8 @@ module fir_top
     .clear_o            ( clear            ),
   //------------------------------------------ < TASK-28 > -------------------------------------------
   // Make approriate connections for streamer_ctrl_o and streamer_flags_i
-    .streamer_ctrl_o    (                  ),
-    .streamer_flags_i   (                  ),
+    .streamer_ctrl_o    ( streamer_ctrl    ),
+    .streamer_flags_i   ( streamer_flags   ),
     .datapath_ctrl_o    ( datapath_ctrl    ),
     .tap_buffer_flags_i ( tap_buffer_flags ),
     .periph             ( periph           )
