@@ -35,8 +35,8 @@ STIM_DATA=$(BUILD_DIR)/stim_data.txt
 # Build implicit rules
 $(STIM_INSTR) $(STIM_DATA): $(BIN)
 	objcopy --srec-len 1 --output-target=srec $(BIN) $(BIN).s19
-	sw/parse_s19.pl $(BIN).s19 > $(BIN).txt
-	python sw/s19tomem.py $(BIN).txt $(STIM_INSTR) $(STIM_DATA)
+	sw/stim_utils.py --binary=$(BIN) --vectors=$(BIN).txt
+	sw/stim_split.py $(BIN).txt $(STIM_INSTR) $(STIM_DATA)
 
 $(BIN): $(CRT) $(OBJ) sw/link.ld
 	$(LD) $(LD_OPTS) -o $(BIN) $(CRT) $(OBJ) -Tsw/link.ld
