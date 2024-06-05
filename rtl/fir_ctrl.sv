@@ -165,9 +165,10 @@ module fir_ctrl
         end
       end
       FSM_COMPUTE: begin
-      //------------------------------------------ < TASK-30 > -------------------------------------------
+      //------------------------------------------ < TASK-34 > -------------------------------------------
       // When the streamer is done writing the output(y) to the memory the state should be changed to the IDLE. 
       // Hint: you can make use of the streamer_flags_i. Go through the fir_package.sv  for the correct signal. 
+      // Hint: you can also take inspiration from tap_buffer_flags_i usage in FSM_TAP_BUFFER phase.
 
       // Placeholder for your code
 

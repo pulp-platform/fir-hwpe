@@ -109,7 +109,7 @@ module fir_datapath
       always_ff @(posedge clk_i or negedge rst_ni)
       begin
       
-      //----------------------------------------- <Task 17>  -----------------------------------------
+      //----------------------------------------- <Task 22.1>  -----------------------------------------
       // Implement the shift register logic for x_delay_data_q and x_delay_valid_q
       // Ensure to include the handshake signals for performing the shifting
       // Also, account for the reset (rst_ni) and clear (clear_i) signals appropriately
@@ -121,7 +121,7 @@ module fir_datapath
   end
 
 
-  //----------------------------------------- <Task 18>  -----------------------------------------
+  //----------------------------------------- <Task 22.2>  -----------------------------------------
   // Compute the elementwise product of h_data and x_delay_data_q in parallel.
   // Ensure to typecast the result to the signed datatype with the desired data width.
 

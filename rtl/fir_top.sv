@@ -42,7 +42,7 @@ module fir_top
 
   logic enable, clear;
 
-  //------------------------------------------ < TASK-28 > -------------------------------------------
+  //------------------------------------------ < TASK-30.1 > -------------------------------------------
   // Declare appropriate signals for the ctrl and flags for the streamer. 
   // Hint: Refer to the fir_package.sv for the appropriate datatype
   // Refer to the block diagram in the task description for appropriate name of the signal
@@ -64,7 +64,7 @@ module fir_top
     .clk_i      ( clk_i            ),
     .rst_ni     ( rst_ni           ),
     .clear_i    ( clear            ),
-    //------------------------------------------ < TASK-29 > -------------------------------------------
+    //------------------------------------------ < TASK-30.2 > -------------------------------------------
     // Make approriate connections for h_serial and h_parallel
     .h_serial   (                  ),
     .h_parallel (                  ),
@@ -80,7 +80,7 @@ module fir_top
     .rst_ni  ( rst_ni            ),
     .clear_i ( clear             ),
     .ctrl_i  ( datapath_ctrl     ),
-    //------------------------------------------ < TASK-29 > -------------------------------------------
+    //------------------------------------------ < TASK-30.2 > -------------------------------------------
     // Make approriate connections for x, h and y
     .x       (                   ),
     .h       (                   ),
@@ -101,7 +101,7 @@ module fir_top
     .h_o              ( h_stream       ),
     .y_i              ( y_stream       ),
     .tcdm             ( tcdm           ),
-    //------------------------------------------ < TASK-28 > -------------------------------------------
+    //------------------------------------------ < TASK-30.1 > -------------------------------------------
     // Make approriate connections for ctrl_i and flags_o
     .ctrl_i           (                ),
     .flags_o          (                )
@@ -118,7 +118,7 @@ module fir_top
     .test_mode_i        ( test_mode_i      ),
     .evt_o              ( evt_o            ),
     .clear_o            ( clear            ),
-  //------------------------------------------ < TASK-28 > -------------------------------------------
+  //------------------------------------------ < TASK-30.1 > -------------------------------------------
   // Make approriate connections for streamer_ctrl_o and streamer_flags_i
     .streamer_ctrl_o    (                  ),
     .streamer_flags_i   (                  ),
